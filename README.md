@@ -11,13 +11,15 @@ A utility to slim down HTML by removing unnecessary tags and attributes.
 ```js
 import {slim} from "html-slim";
 
-const compact = slim(source);
+const slimFn = slim()
+
+const compactHtml = slimFn(originalHtml);
 ```
 
 ## OPTIONS
 
 ```js
-const compact = slim(source, {
+const slimFn = slim({
   script: true,
   ldJson: false,
   style: true,
@@ -26,6 +28,8 @@ const compact = slim(source, {
   tag: /^(next-|nextjs-)$/,
   attr: /^data-v-/,
 });
+
+const compactHtml = slimFn(originalHtml);
 ```
 
 ## COMMONJS

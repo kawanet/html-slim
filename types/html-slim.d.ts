@@ -1,5 +1,11 @@
+import type {Node} from "domhandler";
+
 export namespace Slim {
-    export interface Options {
+    interface Transformer {
+        <T extends (Node | string)>(node: T): T;
+    }
+
+    interface Options {
         /**
          * Remove all `<script>` elements, except for `application/ld+json`, and inline event handlers, e.g. onClick=""
          * @default true
@@ -48,4 +54,4 @@ export namespace Slim {
 /**
  * Strip out scripts, styles and comments from an HTML string.
  */
-export const slim: (html: string, options?: Slim.Options) => string;
+export const slim: (options?: Slim.Options) => Slim.Transformer;

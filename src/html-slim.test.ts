@@ -1,5 +1,7 @@
-import {strict as assert} from "node:assert"
-import {describe, it} from "node:test"
+import {render} from "dom-serializer";
+import {parseDocument} from "htmlparser2";
+import {strict as assert} from "node:assert";
+import {describe, it} from "node:test";
 import {slim} from "./html-slim.js";
 
 const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").replace(/([ \t])[ \t]+|\r?(\n)[\r\n]+/g, "$1$2")
@@ -25,9 +27,15 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
             </html>
         `;
 
-        it('should remove comments, script tags, style tags, style attributes, and event handlers', () => {
-            const expected = '<html><head><title>Test</title></head><body><h1 class="title">Hello World</h1><p>Click me</p></body></html>';
-            assert.equal(noSpace(slim(html)), expected)
+        const expected = '<html><head><title>Test</title></head><body><h1 class="title">Hello World</h1><p>Click me</p></body></html>';
+
+        it('slim()(html)', () => {
+            assert.equal(noSpace(slim()(html)), expected)
+        });
+
+        it('slim()(doc)', () => {
+            const doc = parseDocument(html);
+            assert.equal(noSpace(render(slim()(doc))), expected);
         });
     });
 
@@ -44,7 +52,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         `;
         it('should keep script tags but remove style tags and attributes', () => {
             const expected = '<p>Some text</p><script>alert(\'kept\');</script>';
-            assert.equal(noSpace(slim(html, {script: false})), expected)
+            assert.equal(noSpace(slim({script: false})(html)), expected)
         });
     });
 
@@ -62,7 +70,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
 
         it('should keep style tags, style attributes, and event handlers, but remove script tags', () => {
             const expected = '<p style="color: blue;">Some text</p><style>p {\ndisplay: block;\n}</style>';
-            assert.equal(noSpace(slim(html, {style: false})), expected)
+            assert.equal(noSpace(slim({style: false})(html)), expected)
         })
     })
 
@@ -75,7 +83,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         `;
         it('should keep comments but remove script tags', () => {
             const expected = '<!-- this is a comment --><p>Some text</p>';
-            assert.equal(noSpace(slim(html, {comment: false})), expected)
+            assert.equal(noSpace(slim({comment: false})(html)), expected)
         });
     });
 
@@ -90,7 +98,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         `;
         it('should remove elements matching the tag regex', () => {
             const expected = '<div><span>This should be kept</span></div>';
-            assert.equal(noSpace(slim(html, {tag: /custom-element|another-one/})), expected)
+            assert.equal(noSpace(slim({tag: /custom-element|another-one/})(html)), expected)
         });
     });
 
@@ -104,7 +112,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         `;
         it('should remove attributes matching the attr regex /^data-v-|^data-rcs/', () => {
             const expected = '<div id="app" class="container"><p>Hello</p><span data-test="no-match">World</span></div>';
-            assert.equal(noSpace(slim(html, {attr: /^data-v-|^data-rcs/})), expected)
+            assert.equal(noSpace(slim({attr: /^data-v-|^data-rcs/})(html)), expected)
         });
     });
 
@@ -119,27 +127,27 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
 
         it('default', () => {
             const expected = '<div><script type="application/ld+json">{"@type": "Thing"}</script></div>';
-            assert.equal(noSpace(slim(html)), expected)
+            assert.equal(noSpace(slim()(html)), expected)
         });
 
         it('with {script: true, ldJson: true}', () => {
             const expected = '<div></div>';
-            assert.equal(noSpace(slim(html, {script: true, ldJson: true})), expected)
+            assert.equal(noSpace(slim({script: true, ldJson: true})(html)), expected)
         });
 
         it('with {script: true, ldJson: false}', () => {
             const expected = '<div><script type="application/ld+json">{"@type": "Thing"}</script></div>';
-            assert.equal(noSpace(slim(html, {script: true, ldJson: false})), expected)
+            assert.equal(noSpace(slim({script: true, ldJson: false})(html)), expected)
         });
 
         it('with {script: false, ldJson: true}', () => {
             const expected = '<div><script>[]</script></div>';
-            assert.equal(noSpace(slim(html, {script: false, ldJson: true})), expected)
+            assert.equal(noSpace(slim({script: false, ldJson: true})(html)), expected)
         });
 
         it('with {script: false, ldJson: false}', () => {
             const expected = '<div><script>[]</script><script type="application/ld+json">{"@type": "Thing"}</script></div>';
-            assert.equal(noSpace(slim(html, {script: false, ldJson: false})), expected)
+            assert.equal(noSpace(slim({script: false, ldJson: false})(html)), expected)
         });
     });
 
@@ -153,17 +161,17 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
 
         it('default', () => {
             const expected = '<head></head>';
-            assert.equal(noSpace(slim(html)), expected)
+            assert.equal(noSpace(slim()(html)), expected)
         });
 
         it('{style: true}', () => {
             const expected = '<head></head>';
-            assert.equal(noSpace(slim(html, {style: true})), expected)
+            assert.equal(noSpace(slim({style: true})(html)), expected)
         });
 
         it('{style: false}', () => {
             const expected = '<head><link rel="stylesheet"></head>';
-            assert.equal(noSpace(slim(html, {style: false})), expected)
+            assert.equal(noSpace(slim({style: false})(html)), expected)
         });
     })
 }

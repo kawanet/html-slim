@@ -1,5 +1,5 @@
 import {render} from "dom-serializer"
-import type {ChildNode, Document, Element} from "domhandler"
+import type {ChildNode, Document, Element, Node} from "domhandler"
 import {ElementType, parseDocument} from "htmlparser2"
 import type * as declared from "../types/html-slim.js";
 
@@ -9,7 +9,7 @@ const isLdJson = (node: ChildNode): boolean => ((node as Element).attribs.type?.
 const isStyle = (node: ChildNode): boolean => (node.type === ElementType.Style || (node.type === ElementType.Tag && node.name === "style"));
 const isLinkStylesheet = (node: ChildNode): boolean => (node.type === ElementType.Tag && node.name === "link" && node.attribs.rel?.toLowerCase() === "stylesheet");
 
-export const slim: typeof declared.slim = (html, options = {}) => {
+export const slim: typeof declared.slim = ((options = {}) => {
     const tagIdx: Record<string, boolean> = {};
     const attrIdx: Record<string, boolean> = {};
     const removeLdJson = !!options.ldJson
@@ -22,12 +22,20 @@ export const slim: typeof declared.slim = (html, options = {}) => {
     const removeStyle = attrIdx.style = (options.style !== false)
     tagIdx.template = (options.template !== false)
 
-    const doc = parseDocument(html)
-    slimNode(doc);
-    return render(doc)
+    return <T extends (Node | string)>(input: T): T => {
+        if ("string" === typeof input) {
+            const doc = parseDocument(input)
+            slimNode(doc);
+            return render(doc) as T
+        } else if ("number" === typeof input.nodeType) {
+            slimNode(input as Element)
+            return input as T
+        }
+    }
 
     function slimAttr(node: Element) {
         const {attribs} = node
+
         Object.keys(attribs).forEach(key => {
             if (attrIdx[key] || (eventRE && eventRE.test(key)) || (attrRE && attrRE.test(key))) {
                 delete attribs[key];
@@ -38,6 +46,7 @@ export const slim: typeof declared.slim = (html, options = {}) => {
     function slimNode(node: Element | Document): void {
         const {children} = node
         const length = children?.length || 0
+
         for (let i = length - 1; i >= 0; i--) {
             const child = children[i];
 
@@ -59,4 +68,4 @@ export const slim: typeof declared.slim = (html, options = {}) => {
             slimAttr(node as Element)
         }
     }
-}
+});

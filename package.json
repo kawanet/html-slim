@@ -31,7 +31,7 @@
   "scripts": {
     "build": "make",
     "fixpack": "fixpack",
-    "prepack": "make clean all",
+    "prepack": "make clean test",
     "test": "make test"
   },
   "sideEffects": false,
