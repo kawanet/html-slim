@@ -17,11 +17,22 @@
     "terser": "^5.43.1",
     "typescript": "^5.9.2"
   },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "browser/import.cjs",
+    "cjs/html-slim.js",
+    "dist/html-slim.min.js",
+    "src/html-slim.js",
+    "types/html-slim.d.ts"
+  ],
   "license": "MIT",
   "main": "src/html-slim.js",
   "scripts": {
+    "build": "make",
     "fixpack": "fixpack",
-    "test": "node --test src/*.test.js"
+    "prepack": "make clean all",
+    "test": "make test"
   },
   "sideEffects": false,
   "type": "module",
