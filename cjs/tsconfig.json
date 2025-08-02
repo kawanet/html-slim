@@ -1,0 +1,22 @@
+{
+  "exclude": [
+    "../node_modules"
+  ],
+  "include": [
+    "../src/",
+    "../types/"
+  ],
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "noImplicitReturns": false,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": ".",
+    "removeComments": false,
+    "skipLibCheck": false,
+    "strictNullChecks": false,
+    "target": "ES2022"
+  }
+}

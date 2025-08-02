@@ -3,6 +3,20 @@
   "description": "A utility to slim down HTML by removing unnecessary tags and attributes.",
   "version": "0.1.0",
   "author": "Kawanet",
+  "dependencies": {
+    "dom-serializer": "^2.0.0",
+    "htmlparser2": "^10.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@types/node": "^24.1.0",
+    "chai": "^5.2.1",
+    "domhandler": "^5.0.3",
+    "mocha": "^11.7.1",
+    "rollup": "^4.46.2",
+    "terser": "^5.43.1",
+    "typescript": "^5.9.2"
+  },
   "license": "MIT",
   "main": "src/html-slim.js",
   "scripts": {
@@ -11,14 +25,5 @@
   },
   "sideEffects": false,
   "type": "module",
-  "types": "types/html-slim.d.ts",
-  "dependencies": {
-    "dom-serializer": "^2.0.0",
-    "htmlparser2": "^10.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^24.1.0",
-    "domhandler": "^5.0.3",
-    "typescript": "^5.9.2"
-  }
+  "types": "types/html-slim.d.ts"
 }

@@ -1,13 +1,16 @@
 *.js.gz
 *.js.map
+*.min.js
 *.swp
 *.tgz
-*/**/*.js
+cjs/**/*.js
+src/**/*.js
 *~
 .DS_Store
 .Thumbs
 ._*
 .idea/*.xml
+build/
 node_modules/
 package-lock.json
 tmp/
