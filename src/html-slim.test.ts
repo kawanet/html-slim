@@ -4,7 +4,7 @@ import {slim} from "./html-slim.js";
 
 const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").replace(/([ \t])[ \t]+|\r?(\n)[\r\n]+/g, "$1$2")
 
-describe('slim-htmlparser2', () => {
+{
     describe('default options', () => {
         // language=HTML
         const html = `
@@ -142,4 +142,28 @@ describe('slim-htmlparser2', () => {
             assert.equal(noSpace(slim(html, {script: false, ldJson: false})), expected)
         });
     });
-})
+
+    describe('<link rel="stylesheet">', () => {
+        // language=HTML
+        const html = `
+            <head>
+                <link rel="stylesheet"/>
+            </head>
+        `
+
+        it('default', () => {
+            const expected = '<head></head>';
+            assert.equal(noSpace(slim(html)), expected)
+        });
+
+        it('{style: true}', () => {
+            const expected = '<head></head>';
+            assert.equal(noSpace(slim(html, {style: true})), expected)
+        });
+
+        it('{style: false}', () => {
+            const expected = '<head><link rel="stylesheet"></head>';
+            assert.equal(noSpace(slim(html, {style: false})), expected)
+        });
+    })
+}

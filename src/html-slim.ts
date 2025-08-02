@@ -15,6 +15,7 @@ export const slim: typeof declared.slim = (html, options = {}) => {
     const eventRE = removeScript && /^on\w+$/i;
     const removeStyle = tagIdx.style = attrIdx.style = (options.style !== false)
     tagIdx.template = (options.template !== false)
+    const stylesheetRE = removeStyle && /^stylesheet$/i;
 
     const doc = parseDocument(html)
     slimNode(doc);
@@ -42,12 +43,12 @@ export const slim: typeof declared.slim = (html, options = {}) => {
                 (removeLdJson && isLdJson) ||
                 (removeStyle && child.type === ElementType.Style) ||
                 (removeComment && child.type === ElementType.Comment)) {
-                if (!removeLdJson && child.type === ElementType.Script &&
-                    child.attribs.type === "application/ld+json") continue
                 children.splice(i, 1);
             } else if (child.type === ElementType.Tag) {
                 const tagName = (child as Element).tagName
-                if (tagIdx[tagName] || (tagRE && tagRE.test(tagName))) {
+                if (tagIdx[tagName] ||
+                    (tagRE && tagRE.test(tagName)) ||
+                    (stylesheetRE && tagName === "link" && stylesheetRE.test(child.attribs.rel))) {
                     children.splice(i, 1);
                 } else {
                     slimNode(child); // recursive call
