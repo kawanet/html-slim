@@ -3,11 +3,16 @@ import type {ChildNode, Document, Element, Node} from "domhandler"
 import {ElementType, parseDocument} from "htmlparser2"
 import type * as declared from "../types/html-slim.js";
 
+const isLink = (node: ChildNode): node is Element => (node.type === ElementType.Tag && node.name === "link");
+const isPreload = (node: ChildNode): node is Element => (isLink(node) && node.attribs.rel?.toLowerCase() === "preload");
+
 const isScript = (node: ChildNode): boolean => (node.type === ElementType.Script || (node.type === ElementType.Tag && node.name === "script"));
 const isLdJson = (node: ChildNode): boolean => ((node as Element).attribs.type?.split(";")[0]?.toLowerCase() === "application/ld+json");
+const isPreloadScript = (node: ChildNode): boolean => (isPreload(node) && node.attribs.as?.toLowerCase() === "script");
 
 const isStyle = (node: ChildNode): boolean => (node.type === ElementType.Style || (node.type === ElementType.Tag && node.name === "style"));
-const isLinkStylesheet = (node: ChildNode): boolean => (node.type === ElementType.Tag && node.name === "link" && node.attribs.rel?.toLowerCase() === "stylesheet");
+const isLinkStylesheet = (node: ChildNode): boolean => (isLink(node) && node.attribs.rel?.toLowerCase() === "stylesheet");
+const isPreloadStyle = (node: ChildNode): boolean => (isPreload(node) && node.attribs.as?.toLowerCase() === "style");
 
 export const slim: typeof declared.slim = ((options = {}) => {
     const tagIdx: Record<string, boolean> = {};
@@ -51,7 +56,8 @@ export const slim: typeof declared.slim = ((options = {}) => {
             const child = children[i];
 
             if ((isScript(child) && (isLdJson(child) ? removeLdJson : removeScript)) ||
-                (removeStyle && (isStyle(child) || isLinkStylesheet(child))) ||
+                (removeScript && isPreloadScript(child)) ||
+                (removeStyle && (isStyle(child) || isLinkStylesheet(child) || isPreloadStyle(child))) ||
                 (removeComment && child.type === ElementType.Comment)) {
                 children.splice(i, 1);
             } else if (child.type === ElementType.Tag) {

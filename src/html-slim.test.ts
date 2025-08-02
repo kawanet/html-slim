@@ -110,6 +110,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
                 <span data-test="no-match">World</span>
             </div>
         `;
+
         it('should remove attributes matching the attr regex /^data-v-|^data-rcs/', () => {
             const expected = '<div id="app" class="container"><p>Hello</p><span data-test="no-match">World</span></div>';
             assert.equal(noSpace(slim({attr: /^data-v-|^data-rcs/})(html)), expected)
@@ -174,4 +175,39 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
             assert.equal(noSpace(slim({style: false})(html)), expected)
         });
     })
+
+    describe('<link rel="preload">', () => {
+        // language=HTML
+        const html = `
+            <head>
+                <link rel="preload" href="style.css" as="style"/>
+                <link rel="preload" href="main.js" as="script"/>
+            </head>
+        `
+
+        it('default', () => {
+            const expected = '<head></head>';
+            assert.equal(noSpace(slim()(html)), expected)
+        });
+
+        it('{style: true, script: true}', () => {
+            const expected = '<head></head>';
+            assert.equal(noSpace(slim({style: true, script: true})(html)), expected)
+        });
+
+        it('{style: true, script: false}', () => {
+            const expected = '<head><link rel="preload" href="main.js" as="script"></head>';
+            assert.equal(noSpace(slim({style: true, script: false})(html)), expected)
+        });
+
+        it('{style: false, script: true}', () => {
+            const expected = '<head><link rel="preload" href="style.css" as="style"></head>';
+            assert.equal(noSpace(slim({style: false, script: true})(html)), expected)
+        });
+
+        it('{style: false, script: false}', () => {
+            const expected = '<head><link rel="preload" href="style.css" as="style"><link rel="preload" href="main.js" as="script"></head>';
+            assert.equal(noSpace(slim({style: false, script: false})(html)), expected)
+        });
+    });
 }
