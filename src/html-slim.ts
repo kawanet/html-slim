@@ -1,7 +1,9 @@
 import {render} from "dom-serializer"
-import type {ChildNode, Document, Element, Node} from "domhandler"
+import type {ChildNode, Document, Element} from "domhandler"
 import {ElementType, parseDocument} from "htmlparser2"
 import type * as declared from "../types/html-slim.js";
+
+const isElement = (node: ChildNode): node is Element => (node.nodeType === 1);
 
 const isLink = (node: ChildNode): node is Element => (node.type === ElementType.Tag && node.name === "link");
 const isPreload = (node: ChildNode): node is Element => (isLink(node) && node.attribs.rel?.toLowerCase() === "preload");
@@ -27,15 +29,14 @@ export const slim: typeof declared.slim = ((options = {}) => {
     const removeStyle = attrIdx.style = (options.style !== false)
     tagIdx.template = (options.template !== false)
 
-    return <T extends (Node | string)>(input: T): T => {
-        if ("string" === typeof input) {
-            const doc = parseDocument(input)
-            slimNode(doc);
-            return render(doc) as T
-        } else if ("number" === typeof input.nodeType) {
-            slimNode(input as Element)
-            return input as T
-        }
+    const rootFn = options.root;
+    const walkFn = options.walk;
+
+    return (input) => {
+        const doc = parseDocument(input);
+        if (rootFn) rootFn(doc);
+        slimNode(doc);
+        return render(doc);
     }
 
     function slimAttr(node: Element) {
@@ -55,7 +56,8 @@ export const slim: typeof declared.slim = ((options = {}) => {
         for (let i = length - 1; i >= 0; i--) {
             const child = children[i];
 
-            if ((isScript(child) && (isLdJson(child) ? removeLdJson : removeScript)) ||
+            if ((walkFn && isElement(child) && walkFn(child)) ||
+                (isScript(child) && (isLdJson(child) ? removeLdJson : removeScript)) ||
                 (removeScript && isPreloadScript(child)) ||
                 (removeStyle && (isStyle(child) || isLinkStylesheet(child) || isPreloadStyle(child))) ||
                 (removeComment && child.type === ElementType.Comment)) {

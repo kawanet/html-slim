@@ -1,10 +1,6 @@
-import type {Node} from "domhandler";
+import type {Document, Element} from "domhandler";
 
 export namespace Slim {
-    interface Transformer {
-        <T extends (Node | string)>(node: T): T;
-    }
-
     interface Options {
         /**
          * Remove all `<script>` elements, except for `application/ld+json`, and inline event handlers, e.g. onClick=""
@@ -48,10 +44,20 @@ export namespace Slim {
          * @example /^data-rcs$/i
          */
         attr?: { test(name: string): boolean };
+
+        /**
+         * Hook to be called when the document parsed
+         */
+        root?: (doc: Document) => void;
+
+        /**
+         * Return true for elements to be deleted
+         */
+        walk?: (node: Element) => boolean | void;
     }
 }
 
 /**
  * Strip out scripts, styles and comments from an HTML string.
  */
-export const slim: (options?: Slim.Options) => Slim.Transformer;
+export const slim: (options?: Slim.Options) => (html: string) => string;

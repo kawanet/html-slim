@@ -1,5 +1,4 @@
-import {render} from "dom-serializer";
-import {parseDocument} from "htmlparser2";
+import type {Document} from "domhandler";
 import {strict as assert} from "node:assert";
 import {describe, it} from "node:test";
 import {slim} from "./html-slim.js";
@@ -31,11 +30,6 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
 
         it('slim()(html)', () => {
             assert.equal(noSpace(slim()(html)), expected)
-        });
-
-        it('slim()(doc)', () => {
-            const doc = parseDocument(html);
-            assert.equal(noSpace(render(slim()(doc))), expected);
         });
     });
 
@@ -87,7 +81,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         });
     });
 
-    describe('with options.tag', () => {
+    describe('with options.tag RegExp and walk Function', () => {
         // language=HTML
         const html = `
             <div>
@@ -96,13 +90,23 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
                 <another-one>This also removed</another-one>
             </div>
         `;
-        it('should remove elements matching the tag regex', () => {
-            const expected = '<div><span>This should be kept</span></div>';
+
+        const expected = '<div><span>This should be kept</span></div>';
+
+        it('{tag: /regexp/}', () => {
             assert.equal(noSpace(slim({tag: /custom-element|another-one/})(html)), expected)
+        });
+
+        it('{walk(){...}}', () => {
+            assert.equal(noSpace(slim({
+                walk(node) {
+                    return /custom-element|another-one/.test(node.tagName)
+                }
+            })(html)), expected)
         });
     });
 
-    describe('with options.attr', () => {
+    describe('with options.attr RegExp', () => {
         // language=HTML
         const html = `
             <div data-v-12345="some-value" id="app" class="container">
@@ -111,13 +115,13 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
             </div>
         `;
 
-        it('should remove attributes matching the attr regex /^data-v-|^data-rcs/', () => {
+        it('{attr: /regexp/}', () => {
             const expected = '<div id="app" class="container"><p>Hello</p><span data-test="no-match">World</span></div>';
             assert.equal(noSpace(slim({attr: /^data-v-|^data-rcs/})(html)), expected)
         });
     });
 
-    describe('with options.ldJson', () => {
+    describe('with options.ldJson: boolean', () => {
         // language=HTML
         const html = `
             <div>
@@ -208,6 +212,23 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         it('{style: false, script: false}', () => {
             const expected = '<head><link rel="preload" href="style.css" as="style"><link rel="preload" href="main.js" as="script"></head>';
             assert.equal(noSpace(slim({style: false, script: false})(html)), expected)
+        });
+    });
+
+    describe('with options.root', () => {
+        // language=HTML
+        const html = `
+            <html></html>
+        `;
+
+        it('{root: (doc) => void}', () => {
+            const docs: Document[] = [];
+            const result = slim({root: doc => docs.push(doc)})(html)
+            const expected = '<html></html>';
+            assert.equal(noSpace(result), expected);
+            assert.equal(docs.length, 1);
+            assert.equal(docs[0].nodeType, 9);
+            assert.equal(docs[0].type, "root");
         });
     });
 }
