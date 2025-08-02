@@ -1,7 +1,13 @@
 import {render} from "dom-serializer"
-import type {Document, Element} from "domhandler"
+import type {ChildNode, Document, Element} from "domhandler"
 import {ElementType, parseDocument} from "htmlparser2"
 import type * as declared from "../types/html-slim.js";
+
+const isScript = (node: ChildNode): boolean => (node.type === ElementType.Script || (node.type === ElementType.Tag && node.name === "script"));
+const isLdJson = (node: ChildNode): boolean => ((node as Element).attribs.type?.split(";")[0]?.toLowerCase() === "application/ld+json");
+
+const isStyle = (node: ChildNode): boolean => (node.type === ElementType.Style || (node.type === ElementType.Tag && node.name === "style"));
+const isLinkStylesheet = (node: ChildNode): boolean => (node.type === ElementType.Tag && node.name === "link" && node.attribs.rel?.toLowerCase() === "stylesheet");
 
 export const slim: typeof declared.slim = (html, options = {}) => {
     const tagIdx: Record<string, boolean> = {};
@@ -11,11 +17,10 @@ export const slim: typeof declared.slim = (html, options = {}) => {
     const tagRE = options.tag
     const attrRE = options.attr
 
-    const removeScript = tagIdx.script = (options.script !== false)
+    const removeScript = (options.script !== false)
     const eventRE = removeScript && /^on\w+$/i;
-    const removeStyle = tagIdx.style = attrIdx.style = (options.style !== false)
+    const removeStyle = attrIdx.style = (options.style !== false)
     tagIdx.template = (options.template !== false)
-    const stylesheetRE = removeStyle && /^stylesheet$/i;
 
     const doc = parseDocument(html)
     slimNode(doc);
@@ -36,19 +41,13 @@ export const slim: typeof declared.slim = (html, options = {}) => {
         for (let i = length - 1; i >= 0; i--) {
             const child = children[i];
 
-            const isLdJson = (child.type === ElementType.Script &&
-                child.attribs.type?.split(";")[0]?.toLowerCase() === "application/ld+json")
-
-            if ((removeScript && child.type === ElementType.Script && !isLdJson) ||
-                (removeLdJson && isLdJson) ||
-                (removeStyle && child.type === ElementType.Style) ||
+            if ((isScript(child) && (isLdJson(child) ? removeLdJson : removeScript)) ||
+                (removeStyle && (isStyle(child) || isLinkStylesheet(child))) ||
                 (removeComment && child.type === ElementType.Comment)) {
                 children.splice(i, 1);
             } else if (child.type === ElementType.Tag) {
                 const tagName = (child as Element).tagName
-                if (tagIdx[tagName] ||
-                    (tagRE && tagRE.test(tagName)) ||
-                    (stylesheetRE && tagName === "link" && stylesheetRE.test(child.attribs.rel))) {
+                if (tagIdx[tagName] || (tagRE && tagRE.test(tagName))) {
                     children.splice(i, 1);
                 } else {
                     slimNode(child); // recursive call
