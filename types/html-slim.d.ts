@@ -1,5 +1,3 @@
-import type {Document, Element} from "domhandler";
-
 export namespace Slim {
     interface Options {
         /**
@@ -48,6 +46,13 @@ export namespace Slim {
          * @example "body > header, body > footer"
          */
         select?: string;
+
+        /**
+         * Collapse consecutive whitespaces into a single.
+         * Set to `false` to preserve the original whitespace.
+         * @default true
+         */
+        space?: boolean;
     }
 }
 

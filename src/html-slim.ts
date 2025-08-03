@@ -1,10 +1,11 @@
 import {compile} from "css-select";
 import {render} from "dom-serializer"
-import type {Comment, Element, Node, NodeWithChildren} from "domhandler"
+import type {Comment, Element, Node, NodeWithChildren, Text} from "domhandler"
 import {ElementType, parseDocument} from "htmlparser2"
 import type * as declared from "../types/html-slim.js";
 
 const isElement = (node: Node): node is Element => (node.nodeType === 1);
+const isText = (node: Node): node is Text => (node.nodeType === 3);
 const isComment = (node: Node): node is Comment => (node.nodeType === 8);
 const isNodeWithChildren = (node: Node): node is NodeWithChildren => (!!(node as NodeWithChildren).children);
 
@@ -30,10 +31,19 @@ export const slim: typeof declared.slim = ((options = {}) => {
     const removeStyle = attrIdx.style = !!options.style
     const select = options.select;
     const selectFn = select && compile(select)
+    const removeSpace = (options.space !== false)
 
     return (input) => {
         const doc = parseDocument(input);
         slimNode(doc);
+
+        if (removeSpace) {
+            const first = doc.children[0]
+            if (first && isText(first)) {
+                first.data = first.data.replace(/^\s*\n/, "")
+            }
+        }
+
         return render(doc);
     }
 
@@ -63,6 +73,18 @@ export const slim: typeof declared.slim = ((options = {}) => {
                 children.splice(i--, 1);
             } else if (isNodeWithChildren(child)) {
                 slimNode(child); // recursive call
+            } else if (removeSpace && isText(child)) {
+                if (i > 0) {
+                    const prev = children[i - 1]
+                    if (isText(prev)) {
+                        child.data = prev.data + child.data;
+                        prev.data = ""
+                    }
+                }
+
+                child.data = child.data
+                    .replace(/\s*\n+\s*/g, "\n")
+                    .replace(/[ \t]{2,}/g, " ")
             }
         }
 
