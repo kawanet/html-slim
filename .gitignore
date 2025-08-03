@@ -3,8 +3,7 @@
 *.min.js
 *.swp
 *.tgz
-cjs/**/*.js
-src/**/*.js
+**/*.js
 *~
 .DS_Store
 .Thumbs

@@ -3,6 +3,9 @@
   "description": "A utility to slim down HTML by removing spaces, comments, tags and attributes.",
   "version": "0.1.0",
   "author": "Kawanet",
+  "bin": {
+    "html-slim": "./bin/html-slim.cli.js"
+  },
   "dependencies": {
     "css-select": "^6.0.0",
     "dom-serializer": "^2.0.0",
@@ -31,6 +34,7 @@
   "files": [
     "LICENSE",
     "README.md",
+    "bin/html-slim.cli.js",
     "browser/import.cjs",
     "cjs/html-slim.js",
     "dist/html-slim.min.js",
