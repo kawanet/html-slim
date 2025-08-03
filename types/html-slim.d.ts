@@ -30,16 +30,17 @@ export namespace Slim {
 
         /**
          * RegExp to test elements to be deleted
-         * @example /^(next-|nextjs-)$/i
+         * @example "^(next-|nextjs-)"
+         * @example /^(next-|nextjs-)/i
          */
-        tag?: { test(name: string): boolean };
+        tag?: string | { test(name: string): boolean };
 
         /**
          * RegExp to test attributes to be deleted
-         * @example /^data-v-/i
-         * @example /^data-rcs$/i
+         * @example "^(data-v-)"
+         * @example /^(data-v-)/i
          */
-        attr?: { test(name: string): boolean };
+        attr?: string | { test(name: string): boolean };
 
         /**
          * CSS selector to test elements to be deleted

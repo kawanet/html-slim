@@ -33,7 +33,7 @@ async function readStdin() {
         const desc = config[key as keyof typeof config];
         options[key] = desc;
         if (desc.type === "boolean") {
-            options[`no-${key}`] = desc;
+            options[`keep-${key}`] = desc;
         }
         const lower = key.toLowerCase();
         if (key !== lower) {
@@ -45,21 +45,8 @@ async function readStdin() {
 
     const params: Slim.Options = values;
 
-    if (values.ldjson != null) {
-        params.ldJson = !!values.ldjson;
-        delete (params as any).ldjson;
-    }
-
-    if (values.tag) {
-        params.tag = new RegExp(values.tag as string, "ig");
-    }
-
-    if (values.attr) {
-        params.attr = new RegExp(values.attr as string, "ig");
-    }
-
     Object.keys(values).forEach(key => {
-        const name = key.replace(/^no-/, "");
+        const name = key.replace(/^keep-/, "");
         if (name !== key) {
             const desc = options[key];
             if (desc?.type === "boolean") {
@@ -69,6 +56,11 @@ async function readStdin() {
             }
         }
     })
+
+    if (values.ldjson != null) {
+        params.ldJson = !!values.ldjson;
+        delete (params as any).ldjson;
+    }
 
     const slimFn = slim(params)
 

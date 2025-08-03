@@ -121,6 +121,10 @@ const noSpace = (html: string) => html
             assert.equal(slim({tag: /^(custom-element|another-one)$/})(html), expected)
         });
 
+        it('{tag: "regexp"}', () => {
+            assert.equal(slim({tag: "^(custom-element|another-one)$"})(html), expected)
+        });
+
         it('{selector: "selector"}', () => {
             assert.equal(slim({selector: "custom-element, another-one"})(html), expected)
         });
@@ -135,9 +139,14 @@ const noSpace = (html: string) => html
             </div>
         `;
 
+        const expected = '<div id="app" class="container">\n<p>Hello</p>\n<span data-test="no-match">World</span>\n</div>\n';
+
         it('{attr: /regexp/}', () => {
-            const expected = '<div id="app" class="container">\n<p>Hello</p>\n<span data-test="no-match">World</span>\n</div>\n';
             assert.equal(slim({attr: /^data-v-|^data-rcs/})(html), expected)
+        });
+
+        it('{attr: "regexp"}', () => {
+            assert.equal(slim({attr: "^data-v-|^data-rcs"})(html), expected)
         });
     });
 

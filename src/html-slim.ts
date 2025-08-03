@@ -27,12 +27,23 @@ const keepSpace: Record<string, 1> = {
     textarea: 1,
 };
 
+type Testable = { test(name: string): boolean }
+
+const toTestable = (v: string | Testable): Testable | undefined => {
+    if (!v) return
+    if ("string" === typeof v) {
+        return new RegExp(v, "i")
+    } else {
+        return v;
+    }
+}
+
 export const slim: typeof declared.slim = ((options: declared.Slim.Options = {}) => {
     const attrIdx: Record<string, boolean> = {};
     const removeLdJson = !!options.ldJson
     const removeComment = (options.comment !== false)
-    const tagRE = options.tag
-    const attrRE = options.attr
+    const tagRE = toTestable(options.tag)
+    const attrRE = toTestable(options.attr)
     const removeScript = !!options.script
     const eventRE = removeScript && /^on\w+$/i;
     const removeStyle = attrIdx.style = !!options.style
