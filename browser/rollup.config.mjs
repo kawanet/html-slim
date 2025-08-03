@@ -4,7 +4,6 @@ const externals = {
   "html-slim": "{slim}",
   "node:test": "{describe, it}",
   "node:assert": "{strict: assert}",
-  "css-select": "CSSselect"
 }
 
 export default {

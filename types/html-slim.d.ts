@@ -3,7 +3,9 @@ import type {Document, Element} from "domhandler";
 export namespace Slim {
     interface Options {
         /**
-         * Remove all `<script>` elements, except for `application/ld+json`, and inline event handlers, e.g. onClick=""
+         * Remove all `<script>` elements, except for `application/ld+json`,
+         * inline event handlers, e.g. `onClick=""`,
+         * as well as `<link rel="preload" as="script">` preload statements.
          * @default true
          */
         script?: boolean;
@@ -15,7 +17,9 @@ export namespace Slim {
         ldJson?: boolean;
 
         /**
-         * Remove all `<style>` elements and inline `style=""` attributes.
+         * Remove all `<style>` elements,
+         * inline `style=""` attributes,
+         * as well as `<link rel="preload" as="style">` preload statements.
          * @default true
          */
         style?: boolean;
@@ -40,9 +44,10 @@ export namespace Slim {
         attr?: { test(name: string): boolean };
 
         /**
-         * Return true for elements to be deleted
+         * CSS selector to test elements to be deleted
+         * @example "body > header, body > footer"
          */
-        select?: (node: Element) => boolean | void;
+        select?: string;
     }
 }
 

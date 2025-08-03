@@ -4,7 +4,7 @@ all: dist test
 
 dist: ../dist/html-slim.min.js
 
-test: dist ../build/html-slim.browser.js ../build/test.browser.js ../build/css-select.browser.js ../build/assert.browser.js
+test: dist ../build/html-slim.browser.js ../build/test.browser.js ../build/assert.browser.js
 
 clean:
 	/bin/rm -fr ../dist/ ../build/
@@ -16,6 +16,7 @@ clean:
 
 ../build/html-slim.browser.js: html-slim.entry.mjs ../src/html-slim.js
 	../node_modules/.bin/rollup $< --file $@ --format iife --name slim \
+	    --plugin @rollup/plugin-commonjs \
 	    --plugin @rollup/plugin-node-resolve
 
 ../build/test.browser.js: rollup.config.mjs ../src/html-slim.test.js Makefile
@@ -24,12 +25,6 @@ clean:
 
 ../build/assert.browser.js: assert.entry.mjs Makefile
 	../node_modules/.bin/rollup $< --file $@ --format iife --name assert \
-	    --plugin @rollup/plugin-node-resolve
-	@ls -l $@
-
-../build/css-select.browser.js: css-select.entry.mjs Makefile
-	../node_modules/.bin/rollup $< --file $@ --format iife --name CSSselect \
-	    --plugin @rollup/plugin-commonjs \
 	    --plugin @rollup/plugin-node-resolve
 	@ls -l $@
 

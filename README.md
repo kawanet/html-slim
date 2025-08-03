@@ -26,6 +26,7 @@ const slimFn = slim({
   comment: true,
   tag: /^(next-|nextjs-)$/,
   attr: /^data-v-/,
+  select: "body > header, body > footer",
 });
 
 const compactHtml = slimFn(originalHtml);

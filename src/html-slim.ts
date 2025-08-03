@@ -1,3 +1,4 @@
+import {compile} from "css-select";
 import {render} from "dom-serializer"
 import type {ChildNode, Document, Element} from "domhandler"
 import {ElementType, parseDocument} from "htmlparser2"
@@ -26,6 +27,7 @@ export const slim: typeof declared.slim = ((options = {}) => {
     const eventRE = removeScript && /^on\w+$/i;
     const removeStyle = attrIdx.style = (options.style !== false)
     const select = options.select;
+    const selectFn = select && compile(select)
 
     return (input) => {
         const doc = parseDocument(input);
@@ -50,7 +52,7 @@ export const slim: typeof declared.slim = ((options = {}) => {
         for (let i = length - 1; i >= 0; i--) {
             const child = children[i];
 
-            if ((select && isElement(child) && select(child)) ||
+            if ((selectFn && isElement(child) && selectFn(child)) ||
                 (isScript(child) && (isLdJson(child) ? removeLdJson : removeScript)) ||
                 (removeScript && isPreloadScript(child)) ||
                 (removeStyle && (isStyle(child) || isLinkStylesheet(child) || isPreloadStyle(child))) ||

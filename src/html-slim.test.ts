@@ -1,4 +1,3 @@
-import {compile} from "css-select";
 import {strict as assert} from "node:assert";
 import {describe, it} from "node:test";
 import {slim} from "./html-slim.js";
@@ -81,7 +80,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         });
     });
 
-    describe('options.tag: RegExp, select: Function', () => {
+    describe('options.tag: RegExp, select: selector', () => {
         // language=HTML
         const html = `
             <div>
@@ -97,12 +96,8 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
             assert.equal(noSpace(slim({tag: /^(custom-element|another-one)$/})(html)), expected)
         });
 
-        it('{select(){...}}', () => {
-            assert.equal(noSpace(slim({
-                select(node) {
-                    return /^(custom-element|another-one)$/.test(node.tagName)
-                }
-            })(html)), expected)
+        it('{select: "selector"}', () => {
+            assert.equal(noSpace(slim({select: "custom-element, another-one"})(html)), expected)
         });
     });
 
@@ -227,21 +222,18 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         `;
 
         it('header', () => {
-            const select = compile("header");
             const expected = `<body><main></main></body>`;
-            assert.equal(noSpace(slim({select})(html)), expected)
+            assert.equal(noSpace(slim({select: "header"})(html)), expected)
         });
 
         it('body > header', () => {
-            const select = compile("body > header");
             const expected = `<body><main><header>Bar</header></main></body>`;
-            assert.equal(noSpace(slim({select})(html)), expected)
+            assert.equal(noSpace(slim({select: "body > header"})(html)), expected)
         });
 
         it('main > header', () => {
-            const select = compile("main > header");
             const expected = `<body><header>Foo</header><main></main></body>`;
-            assert.equal(noSpace(slim({select})(html)), expected)
+            assert.equal(noSpace(slim({select: "main > header"})(html)), expected)
         });
     });
 }
