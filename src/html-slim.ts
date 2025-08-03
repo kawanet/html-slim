@@ -77,7 +77,10 @@ export const slim: typeof declared.slim = ((options = {}) => {
                         (removeScript && isPreloadScript(child)) ||
                         (removeStyle && (isStyle(child) || isLinkStylesheet(child) || isPreloadStyle(child))))) ||
                 (removeComment && isComment(child))) {
+                const {prev, next} = child;
                 children.splice(i++, 1);
+                if (prev) prev.next = next;
+                if (next) next.prev = prev;
             } else if (isNodeWithChildren(child)) {
                 slimNode(child); // recursive call
             } else if (removeSpace && isText(child)) {
