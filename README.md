@@ -4,7 +4,7 @@
 [![npm version](https://img.shields.io/npm/v/html-slim)](https://www.npmjs.com/package/html-slim)
 [![gzip size](https://img.badgesize.io/https://unpkg.com/html-slim/dist/html-slim.min.js?compression=gzip)](https://unpkg.com/html-slim/dist/html-slim.min.js)
 
-A utility to slim down HTML by removing unnecessary tags and attributes.
+A utility to slim down HTML by removing spaces, comments, tags and attributes.
 
 ## SYNOPSIS
 
@@ -12,14 +12,21 @@ A utility to slim down HTML by removing unnecessary tags and attributes.
 import {slim} from "html-slim";
 
 const slimFn = slim({
+  // CSS selector for removing tags
+  select: "body > header, body > footer",
+
+  // RegExp for removing tags and attributes
+  tag: /^(next-|nextjs-)$/,
+  attr: /^data-v-/,
+
+  // shortcut for removing scripts and styles
   script: true,
   ldJson: false,
   style: true,
-  comment: true,
-  tag: /^(next-|nextjs-)$/,
-  attr: /^data-v-/,
-  select: "body > header, body > footer",
+
+  // removing spaces and comments per default
   space: true,
+  comment: true,
 });
 
 const compactHtml = slimFn(originalHtml);

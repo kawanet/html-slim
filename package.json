@@ -1,6 +1,6 @@
 {
   "name": "html-slim",
-  "description": "A utility to slim down HTML by removing unnecessary tags and attributes.",
+  "description": "A utility to slim down HTML by removing spaces, comments, tags and attributes.",
   "version": "0.1.0",
   "author": "Kawanet",
   "dependencies": {
