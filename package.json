@@ -19,6 +19,15 @@
     "terser": "^5.43.1",
     "typescript": "^5.9.2"
   },
+  "exports": {
+    ".": {
+      "require": "./cjs/html-slim.js",
+      "import": {
+        "types": "./types/html-slim.d.ts",
+        "default": "./src/html-slim.js"
+      }
+    }
+  },
   "files": [
     "LICENSE",
     "README.md",
