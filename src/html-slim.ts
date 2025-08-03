@@ -11,6 +11,7 @@ const isNodeWithChildren = (node: Node): node is NodeWithChildren => (!!(node as
 
 const isLink = (node: Element): boolean => (node.name === "link");
 const isPreload = (node: Element): boolean => (isLink(node) && node.attribs.rel?.toLowerCase() === "preload");
+const isModulepreload = (node: Element): boolean => (isLink(node) && node.attribs.rel?.toLowerCase() === "modulepreload");
 
 const isScript = (node: Element): boolean => (node.name === "script");
 const isLdJson = (node: Element): boolean => (node.attribs.type?.split(";")[0]?.toLowerCase() === "application/ld+json");
@@ -89,7 +90,7 @@ export const slim: typeof declared.slim = ((options: declared.Slim.Options = {})
                     ((selectFn && selectFn(child)) ||
                         (tagRE && tagRE.test(child.tagName)) ||
                         (isScript(child) && (isLdJson(child) ? removeLdJson : removeScript)) ||
-                        (removeScript && isPreloadScript(child)) ||
+                        (removeScript && (isPreloadScript(child) || isModulepreload(child))) ||
                         (removeStyle && (isStyle(child) || isLinkStylesheet(child) || isPreloadStyle(child))))) ||
                 (removeComment && isComment(child))) {
                 deleting.push(i);

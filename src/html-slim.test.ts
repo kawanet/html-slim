@@ -215,6 +215,7 @@ const noSpace = (html: string) => html
             <head>
                 <link rel="preload" href="style.css" as="style">
                 <link rel="preload" href="main.js" as="script">
+                <link rel="modulepreload" href="module.js">
             </head>
         `
 
@@ -229,7 +230,7 @@ const noSpace = (html: string) => html
         });
 
         it('{style: true, script: false}', () => {
-            const expected = '<head>\n<link rel="preload" href="main.js" as="script">\n</head>\n';
+            const expected = '<head>\n<link rel="preload" href="main.js" as="script">\n<link rel="modulepreload" href="module.js">\n</head>\n';
             assert.equal(slim({style: true, script: false})(html), expected)
         });
 
