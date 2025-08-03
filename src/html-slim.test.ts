@@ -297,4 +297,13 @@ const noSpace = (html: string) => html
             assert.equal(slim({space: false})(html), html)
         });
     });
+
+    describe('encodeEntities', () => {
+        // language=HTML
+        const html = `&lt;span&gt;ＵＴＦ８&lt;/span&gt;`
+
+        it('default', () => {
+            assert.equal(slim()(html), html)
+        });
+    });
 }

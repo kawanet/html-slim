@@ -62,7 +62,7 @@ export const slim: typeof declared.slim = ((options: declared.Slim.Options = {})
             }
         }
 
-        return render(doc);
+        return render(doc, {encodeEntities: "utf8"});
     }
 
     function slimAttr(node: Element) {
