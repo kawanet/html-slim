@@ -17,18 +17,14 @@ const isLinkStylesheet = (node: ChildNode): boolean => (isLink(node) && node.att
 const isPreloadStyle = (node: ChildNode): boolean => (isPreload(node) && node.attribs.as?.toLowerCase() === "style");
 
 export const slim: typeof declared.slim = ((options = {}) => {
-    const tagIdx: Record<string, boolean> = {};
     const attrIdx: Record<string, boolean> = {};
     const removeLdJson = !!options.ldJson
     const removeComment = (options.comment !== false)
     const tagRE = options.tag
     const attrRE = options.attr
-
     const removeScript = (options.script !== false)
     const eventRE = removeScript && /^on\w+$/i;
     const removeStyle = attrIdx.style = (options.style !== false)
-    tagIdx.template = (options.template !== false)
-
     const select = options.select;
 
     return (input) => {
@@ -62,7 +58,7 @@ export const slim: typeof declared.slim = ((options = {}) => {
                 children.splice(i, 1);
             } else if (child.type === ElementType.Tag) {
                 const tagName = (child as Element).tagName
-                if (tagIdx[tagName] || (tagRE && tagRE.test(tagName))) {
+                if (tagRE && tagRE.test(tagName)) {
                     children.splice(i, 1);
                 } else {
                     slimNode(child); // recursive call

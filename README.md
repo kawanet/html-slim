@@ -24,7 +24,6 @@ const slimFn = slim({
   ldJson: false,
   style: true,
   comment: true,
-  template: true,
   tag: /^(next-|nextjs-)$/,
   attr: /^data-v-/,
 });

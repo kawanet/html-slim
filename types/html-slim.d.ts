@@ -27,12 +27,6 @@ export namespace Slim {
         comment?: boolean;
 
         /**
-         * Remove all <template> elements
-         * @default true
-         */
-        template?: boolean;
-
-        /**
          * RegExp to test elements to be deleted
          * @example /^(next-|nextjs-)$/i
          */
