@@ -47,9 +47,8 @@ export const slim: typeof declared.slim = ((options = {}) => {
 
     function slimNode(node: Element | Document): void {
         const {children} = node
-        const length = children?.length || 0
 
-        for (let i = length - 1; i >= 0; i--) {
+        if (children) for (let i = 0; i < children.length; i++) {
             const child = children[i];
 
             if ((selectFn && isElement(child) && selectFn(child)) ||
@@ -57,11 +56,11 @@ export const slim: typeof declared.slim = ((options = {}) => {
                 (removeScript && isPreloadScript(child)) ||
                 (removeStyle && (isStyle(child) || isLinkStylesheet(child) || isPreloadStyle(child))) ||
                 (removeComment && child.type === ElementType.Comment)) {
-                children.splice(i, 1);
+                children.splice(i--, 1);
             } else if (child.type === ElementType.Tag) {
                 const tagName = (child as Element).tagName
                 if (tagRE && tagRE.test(tagName)) {
-                    children.splice(i, 1);
+                    children.splice(i--, 1);
                 } else {
                     slimNode(child); // recursive call
                 }
