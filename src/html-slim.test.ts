@@ -5,34 +5,7 @@ import {slim} from "./html-slim.js";
 const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").replace(/([ \t])[ \t]+|\r?(\n)[\r\n]+/g, "$1$2")
 
 {
-    describe('default options', () => {
-        // language=HTML
-        const html = `
-            <!-- this is a comment -->
-            <html>
-            <head>
-                <title>Test</title>
-                <style>body {
-                    color: red;
-                }</style>
-                <script>alert('hello');</script>
-            </head>
-            <body style="margin: 0;" onload="init()">
-            <h1 class="title">Hello World</h1>
-            <p onclick="doSomething()">Click me</p>
-            <script>console.log('inline script');</script>
-            </body>
-            </html>
-        `;
-
-        const expected = '<html><head><title>Test</title></head><body><h1 class="title">Hello World</h1><p>Click me</p></body></html>';
-
-        it('slim()(html)', () => {
-            assert.equal(noSpace(slim()(html)), expected)
-        });
-    });
-
-    describe('options.script: false', () => {
+    describe('options.script: boolean', () => {
         // language=HTML
         const html = `
             <p>Some text</p>
@@ -43,13 +16,24 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
                 }
             </style>
         `;
-        it('should keep script tags but remove style tags and attributes', () => {
-            const expected = '<p>Some text</p><script>alert(\'kept\');</script>';
+
+        it('default', () => {
+            const expected = noSpace(html)
+            assert.equal(noSpace(slim({script: false})(html)), expected)
+        });
+
+        it('{script: true}', () => {
+            const expected = '<p>Some text</p><style>p {\ndisplay: none;\n}</style>';
+            assert.equal(noSpace(slim({script: true})(html)), expected)
+        });
+
+        it('{script: false}', () => {
+            const expected = noSpace(html)
             assert.equal(noSpace(slim({script: false})(html)), expected)
         });
     });
 
-    describe('options.style: false', () => {
+    describe('options.style: boolean', () => {
         // language=HTML
         const html = `
             <p style="color: blue;" onclick="alert('hello')">Some text</p>
@@ -61,21 +45,41 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
             </style>
         `;
 
-        it('should keep style tags, style attributes, and event handlers, but remove script tags', () => {
-            const expected = '<p style="color: blue;">Some text</p><style>p {\ndisplay: block;\n}</style>';
+        it('default', () => {
+            const expected = `<p style="color: blue;" onclick="alert(&apos;hello&apos;)">Some text</p><script>alert('removed');</script><style>p {\ndisplay: block;\n}</style>`;
+            assert.equal(noSpace(slim()(html)), expected)
+        })
+
+        it('{style: true}', () => {
+            const expected = `<p onclick="alert(&apos;hello&apos;)">Some text</p><script>alert('removed');</script>`;
+            assert.equal(noSpace(slim({style: true})(html)), expected)
+        })
+
+        it('{style: false}', () => {
+            const expected = `<p style="color: blue;" onclick="alert(&apos;hello&apos;)">Some text</p><script>alert('removed');</script><style>p {\ndisplay: block;\n}</style>`;
             assert.equal(noSpace(slim({style: false})(html)), expected)
         })
     })
 
-    describe('options.comment: false', () => {
+    describe('options.comment: boolean', () => {
         // language=HTML
         const html = `
             <!-- this is a comment -->
             <p>Some text</p>
-            <script>alert('removed');</script>
         `;
-        it('should keep comments but remove script tags', () => {
-            const expected = '<!-- this is a comment --><p>Some text</p>';
+
+        it('default', () => {
+            const expected = noSpace(html)
+            assert.equal(noSpace(slim({comment: false})(html)), expected)
+        });
+
+        it('{comment: true}', () => {
+            const expected = '<p>Some text</p>';
+            assert.equal(noSpace(slim({comment: true})(html)), expected)
+        });
+
+        it('{comment: false}', () => {
+            const expected = noSpace(html)
             assert.equal(noSpace(slim({comment: false})(html)), expected)
         });
     });
@@ -126,7 +130,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         `;
 
         it('default', () => {
-            const expected = '<div><script type="application/ld+json">{"@type": "Thing"}</script></div>';
+            const expected = noSpace(html)
             assert.equal(noSpace(slim()(html)), expected)
         });
 
@@ -146,7 +150,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         });
 
         it('with {script: false, ldJson: false}', () => {
-            const expected = '<div><script>[]</script><script type="application/ld+json">{"@type": "Thing"}</script></div>';
+            const expected = noSpace(html)
             assert.equal(noSpace(slim({script: false, ldJson: false})(html)), expected)
         });
     });
@@ -155,12 +159,12 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         // language=HTML
         const html = `
             <head>
-                <link rel="stylesheet"/>
+                <link rel="stylesheet" href="style.css">
             </head>
         `
 
         it('default', () => {
-            const expected = '<head></head>';
+            const expected = noSpace(html)
             assert.equal(noSpace(slim()(html)), expected)
         });
 
@@ -170,7 +174,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         });
 
         it('{style: false}', () => {
-            const expected = '<head><link rel="stylesheet"></head>';
+            const expected = noSpace(html)
             assert.equal(noSpace(slim({style: false})(html)), expected)
         });
     })
@@ -179,13 +183,13 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         // language=HTML
         const html = `
             <head>
-                <link rel="preload" href="style.css" as="style"/>
-                <link rel="preload" href="main.js" as="script"/>
+                <link rel="preload" href="style.css" as="style">
+                <link rel="preload" href="main.js" as="script">
             </head>
         `
 
         it('default', () => {
-            const expected = '<head></head>';
+            const expected = noSpace(html)
             assert.equal(noSpace(slim()(html)), expected)
         });
 
@@ -205,7 +209,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         });
 
         it('{style: false, script: false}', () => {
-            const expected = '<head><link rel="preload" href="style.css" as="style"><link rel="preload" href="main.js" as="script"></head>';
+            const expected = noSpace(html)
             assert.equal(noSpace(slim({style: false, script: false})(html)), expected)
         });
     });

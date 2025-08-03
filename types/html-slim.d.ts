@@ -6,7 +6,7 @@ export namespace Slim {
          * Remove all `<script>` elements, except for `application/ld+json`,
          * inline event handlers, e.g. `onClick=""`,
          * as well as `<link rel="preload" as="script">` preload statements.
-         * @default true
+         * @default false
          */
         script?: boolean;
 
@@ -20,13 +20,13 @@ export namespace Slim {
          * Remove all `<style>` elements,
          * inline `style=""` attributes,
          * as well as `<link rel="preload" as="style">` preload statements.
-         * @default true
+         * @default false
          */
         style?: boolean;
 
         /**
          * Remove all HTML comments: `<!-- ... -->`
-         * @default true
+         * @default false
          */
         comment?: boolean;
 

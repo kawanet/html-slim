@@ -11,14 +11,6 @@ A utility to slim down HTML by removing unnecessary tags and attributes.
 ```js
 import {slim} from "html-slim";
 
-const slimFn = slim()
-
-const compactHtml = slimFn(originalHtml);
-```
-
-## OPTIONS
-
-```js
 const slimFn = slim({
   script: true,
   ldJson: false,

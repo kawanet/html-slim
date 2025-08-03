@@ -20,12 +20,12 @@ const isPreloadStyle = (node: ChildNode): boolean => (isPreload(node) && node.at
 export const slim: typeof declared.slim = ((options = {}) => {
     const attrIdx: Record<string, boolean> = {};
     const removeLdJson = !!options.ldJson
-    const removeComment = (options.comment !== false)
+    const removeComment = !!options.comment
     const tagRE = options.tag
     const attrRE = options.attr
-    const removeScript = (options.script !== false)
+    const removeScript = !!options.script
     const eventRE = removeScript && /^on\w+$/i;
-    const removeStyle = attrIdx.style = (options.style !== false)
+    const removeStyle = attrIdx.style = !!options.style
     const select = options.select;
     const selectFn = select && compile(select)
 
