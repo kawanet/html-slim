@@ -1,21 +1,23 @@
 import {compile} from "css-select";
 import {render} from "dom-serializer"
-import type {ChildNode, Document, Element} from "domhandler"
+import type {Comment, Element, Node, NodeWithChildren} from "domhandler"
 import {ElementType, parseDocument} from "htmlparser2"
 import type * as declared from "../types/html-slim.js";
 
-const isElement = (node: ChildNode): node is Element => (node.nodeType === 1);
+const isElement = (node: Node): node is Element => (node.nodeType === 1);
+const isComment = (node: Node): node is Comment => (node.nodeType === 8);
+const isNodeWithChildren = (node: Node): node is NodeWithChildren => (!!(node as NodeWithChildren).children);
 
-const isLink = (node: ChildNode): node is Element => (node.type === ElementType.Tag && node.name === "link");
-const isPreload = (node: ChildNode): node is Element => (isLink(node) && node.attribs.rel?.toLowerCase() === "preload");
+const isLink = (node: Element): boolean => (node.type === ElementType.Tag && node.name === "link");
+const isPreload = (node: Element): boolean => (isLink(node) && node.attribs.rel?.toLowerCase() === "preload");
 
-const isScript = (node: ChildNode): boolean => (node.type === ElementType.Script || (node.type === ElementType.Tag && node.name === "script"));
-const isLdJson = (node: ChildNode): boolean => ((node as Element).attribs.type?.split(";")[0]?.toLowerCase() === "application/ld+json");
-const isPreloadScript = (node: ChildNode): boolean => (isPreload(node) && node.attribs.as?.toLowerCase() === "script");
+const isScript = (node: Element): boolean => (node.type === ElementType.Script || (node.type === ElementType.Tag && node.name === "script"));
+const isLdJson = (node: Element): boolean => ((node as Element).attribs.type?.split(";")[0]?.toLowerCase() === "application/ld+json");
+const isPreloadScript = (node: Element): boolean => (isPreload(node) && node.attribs.as?.toLowerCase() === "script");
 
-const isStyle = (node: ChildNode): boolean => (node.type === ElementType.Style || (node.type === ElementType.Tag && node.name === "style"));
-const isLinkStylesheet = (node: ChildNode): boolean => (isLink(node) && node.attribs.rel?.toLowerCase() === "stylesheet");
-const isPreloadStyle = (node: ChildNode): boolean => (isPreload(node) && node.attribs.as?.toLowerCase() === "style");
+const isStyle = (node: Element): boolean => (node.type === ElementType.Style || (node.type === ElementType.Tag && node.name === "style"));
+const isLinkStylesheet = (node: Element): boolean => (isLink(node) && node.attribs.rel?.toLowerCase() === "stylesheet");
+const isPreloadStyle = (node: Element): boolean => (isPreload(node) && node.attribs.as?.toLowerCase() === "style");
 
 export const slim: typeof declared.slim = ((options = {}) => {
     const attrIdx: Record<string, boolean> = {};
@@ -45,30 +47,27 @@ export const slim: typeof declared.slim = ((options = {}) => {
         })
     }
 
-    function slimNode(node: Element | Document): void {
+    function slimNode(node: NodeWithChildren): void {
         const {children} = node
 
-        if (children) for (let i = 0; i < children.length; i++) {
+        for (let i = 0; i < children.length; i++) {
             const child = children[i];
 
-            if ((selectFn && isElement(child) && selectFn(child)) ||
-                (isScript(child) && (isLdJson(child) ? removeLdJson : removeScript)) ||
-                (removeScript && isPreloadScript(child)) ||
-                (removeStyle && (isStyle(child) || isLinkStylesheet(child) || isPreloadStyle(child))) ||
-                (removeComment && child.type === ElementType.Comment)) {
+            if ((isElement(child) &&
+                    ((selectFn && selectFn(child)) ||
+                        (tagRE && tagRE.test(child.tagName)) ||
+                        (isScript(child) && (isLdJson(child) ? removeLdJson : removeScript)) ||
+                        (removeScript && isPreloadScript(child)) ||
+                        (removeStyle && (isStyle(child) || isLinkStylesheet(child) || isPreloadStyle(child))))) ||
+                (removeComment && isComment(child))) {
                 children.splice(i--, 1);
-            } else if (child.type === ElementType.Tag) {
-                const tagName = (child as Element).tagName
-                if (tagRE && tagRE.test(tagName)) {
-                    children.splice(i--, 1);
-                } else {
-                    slimNode(child); // recursive call
-                }
+            } else if (isNodeWithChildren(child)) {
+                slimNode(child); // recursive call
             }
         }
 
-        if ((node as Element).attribs) {
-            slimAttr(node as Element)
+        if (isElement(node)) {
+            slimAttr(node)
         }
     }
 });
