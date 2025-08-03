@@ -23,7 +23,7 @@ const isPreloadStyle = (node: Element): boolean => (isPreload(node) && node.attr
 export const slim: typeof declared.slim = ((options = {}) => {
     const attrIdx: Record<string, boolean> = {};
     const removeLdJson = !!options.ldJson
-    const removeComment = !!options.comment
+    const removeComment = (options.comment !== false)
     const tagRE = options.tag
     const attrRE = options.attr
     const removeScript = !!options.script

@@ -69,8 +69,8 @@ const noSpace = (html: string) => html.replace(/\s*(\n)\s*/g, "$1").replace(/^\s
         `;
 
         it('default', () => {
-            const expected = noSpace(html)
-            assert.equal(slim({comment: false})(html), expected)
+            const expected = '\n<p>Some text</p>\n';
+            assert.equal(slim()(html), expected)
         });
 
         it('{comment: true}', () => {

@@ -24,7 +24,7 @@ export namespace Slim {
 
         /**
          * Remove all HTML comments: `<!-- ... -->`
-         * @default false
+         * @default true
          */
         comment?: boolean;
 
