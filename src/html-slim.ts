@@ -77,8 +77,12 @@ export const slim: typeof declared.slim = ((options: declared.Slim.Options = {})
 
     function slimNode(node: NodeWithChildren): void {
         const {children} = node
+        const deleting: number[] = []
 
-        for (let i = children.length - 1; i >= 0; i--) {
+        /**
+         * detect elements to be deleted
+         */
+        for (let i = 0; i < children.length; i++) {
             const child = children[i];
 
             if ((isElement(child) &&
@@ -88,33 +92,63 @@ export const slim: typeof declared.slim = ((options: declared.Slim.Options = {})
                         (removeScript && isPreloadScript(child)) ||
                         (removeStyle && (isStyle(child) || isLinkStylesheet(child) || isPreloadStyle(child))))) ||
                 (removeComment && isComment(child))) {
-                const {prev, next} = child;
-                children.splice(i++, 1);
-                if (prev) prev.next = next;
-                if (next) next.prev = prev;
+                deleting.push(i);
             } else if (isNodeWithChildren(child)) {
                 slimNode(child); // recursive call
-            } else if (removeSpace && isText(child)) {
-                const next = children[i + 1]
-                if (next && isText(next)) {
-                    child.data = next.data + child.data;
-                    next.data = ""
-                }
-
-                if (keepSpace[(node as Element).name]) {
-                    child.data = child.data.replace(/\s*\n\s*$/g, "\n")
-                } else {
-                    child.data = child.data
-                        .replace(/\s*\n+\s*/g, "\n")
-                        .replace(/[ \t]{2,}/g, " ")
-                }
             }
         }
 
-        if (removeSpace && children.length === 1) {
-            const child = children[0];
-            if (isText(child) && child.data !== "" && !/\S/.test(child.data)) {
-                child.data = "";
+        /**
+         * delete elements
+         */
+        for (let i = deleting.length - 1; i >= 0; i--) {
+            const pos = deleting[i];
+            const child = children[pos];
+            const {prev, next} = child;
+            children.splice(pos, 1);
+            if (prev) prev.next = next;
+            if (next) next.prev = prev;
+        }
+
+        if (removeSpace) {
+            let others = 0;
+
+            for (let i = 0; i < children.length; i++) {
+                const child = children[i];
+
+                if (isText(child)) {
+                    /**
+                     * join text nodes
+                     */
+                    let next = child as Node;
+                    while ((next = next.next) && isText(next)) {
+                        child.data = next.data + child.data;
+                        next.data = ""
+                    }
+
+                    /**
+                     * delete spaces
+                     */
+                    if (keepSpace[(node as Element).name]) {
+                        child.data = child.data.replace(/\s*\n\s*$/g, "\n")
+                    } else {
+                        child.data = child.data
+                            .replace(/\s*\n+\s*/g, "\n")
+                            .replace(/[ \t]{2,}/g, " ")
+                    }
+                } else {
+                    others++;
+                }
+            }
+
+            /**
+             * delete leading spaces
+             */
+            if (!others) {
+                const first = children[0];
+                if (first && isText(first) && first.data !== "" && !/\S/.test(first.data)) {
+                    first.data = "";
+                }
             }
         }
 

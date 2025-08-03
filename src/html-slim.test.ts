@@ -165,7 +165,7 @@ const noSpace = (html: string) => html
         });
 
         it('with {script: true, ldJson: true}', () => {
-            const expected = '<div>\n</div>\n';
+            const expected = '<div></div>\n';
             assert.equal(slim({script: true, ldJson: true})(html), expected)
         });
 
@@ -199,7 +199,7 @@ const noSpace = (html: string) => html
         });
 
         it('{style: true}', () => {
-            const expected = '<head>\n</head>\n';
+            const expected = '<head></head>\n';
             assert.equal(slim({style: true})(html), expected)
         });
 
@@ -224,7 +224,7 @@ const noSpace = (html: string) => html
         });
 
         it('{style: true, script: true}', () => {
-            const expected = '<head>\n</head>\n';
+            const expected = '<head></head>\n';
             assert.equal(slim({style: true, script: true})(html), expected)
         });
 
@@ -256,7 +256,7 @@ const noSpace = (html: string) => html
         `;
 
         it('header', () => {
-            const expected = `<body>\n<main>\n</main>\n</body>\n`;
+            const expected = `<body>\n<main></main>\n</body>\n`;
             assert.equal(slim({selector: "header"})(html), expected)
         });
 
@@ -266,7 +266,7 @@ const noSpace = (html: string) => html
         });
 
         it('main > header', () => {
-            const expected = `<body>\n<header>Foo</header>\n<main>\n</main>\n</body>\n`;
+            const expected = `<body>\n<header>Foo</header>\n<main></main>\n</body>\n`;
             assert.equal(slim({selector: "main > header"})(html), expected)
         });
     });
