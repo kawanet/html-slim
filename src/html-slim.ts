@@ -1,7 +1,7 @@
 import {compile} from "css-select";
 import {render} from "dom-serializer"
 import type {Comment, Element, Node, NodeWithChildren, Text} from "domhandler"
-import {ElementType, parseDocument} from "htmlparser2"
+import {parseDocument} from "htmlparser2"
 import type * as declared from "../types/html-slim.js";
 
 const isElement = (node: Node): node is Element => (node.nodeType === 1);
@@ -9,16 +9,23 @@ const isText = (node: Node): node is Text => (node.nodeType === 3);
 const isComment = (node: Node): node is Comment => (node.nodeType === 8);
 const isNodeWithChildren = (node: Node): node is NodeWithChildren => (!!(node as NodeWithChildren).children);
 
-const isLink = (node: Element): boolean => (node.type === ElementType.Tag && node.name === "link");
+const isLink = (node: Element): boolean => (node.name === "link");
 const isPreload = (node: Element): boolean => (isLink(node) && node.attribs.rel?.toLowerCase() === "preload");
 
-const isScript = (node: Element): boolean => (node.type === ElementType.Script || (node.type === ElementType.Tag && node.name === "script"));
-const isLdJson = (node: Element): boolean => ((node as Element).attribs.type?.split(";")[0]?.toLowerCase() === "application/ld+json");
+const isScript = (node: Element): boolean => (node.name === "script");
+const isLdJson = (node: Element): boolean => (node.attribs.type?.split(";")[0]?.toLowerCase() === "application/ld+json");
 const isPreloadScript = (node: Element): boolean => (isPreload(node) && node.attribs.as?.toLowerCase() === "script");
 
-const isStyle = (node: Element): boolean => (node.type === ElementType.Style || (node.type === ElementType.Tag && node.name === "style"));
+const isStyle = (node: Element): boolean => (node.name === "style");
 const isLinkStylesheet = (node: Element): boolean => (isLink(node) && node.attribs.rel?.toLowerCase() === "stylesheet");
 const isPreloadStyle = (node: Element): boolean => (isPreload(node) && node.attribs.as?.toLowerCase() === "style");
+
+const keepSpace: Record<string, 1> = {
+    pre: 1,
+    script: 1,
+    style: 1,
+    textarea: 1,
+};
 
 export const slim: typeof declared.slim = ((options = {}) => {
     const attrIdx: Record<string, boolean> = {};
@@ -82,9 +89,13 @@ export const slim: typeof declared.slim = ((options = {}) => {
                     }
                 }
 
-                child.data = child.data
-                    .replace(/\s*\n+\s*/g, "\n")
-                    .replace(/[ \t]{2,}/g, " ")
+                if (keepSpace[(node as Element).name]) {
+                    child.data = child.data.replace(/\s*\n\s*$/g, "\n")
+                } else {
+                    child.data = child.data
+                        .replace(/\s*\n+\s*/g, "\n")
+                        .replace(/[ \t]{2,}/g, " ")
+                }
             }
         }
 

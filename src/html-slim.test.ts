@@ -2,14 +2,20 @@ import {strict as assert} from "node:assert";
 import {describe, it} from "node:test";
 import {slim} from "./html-slim.js";
 
-const noSpace = (html: string) => html.replace(/\s*(\n)\s*/g, "$1").replace(/^\s*\n/, "");
+const noSpace = (html: string) => html
+    .replace(/>\s*(\n)\s*</g, ">$1<")
+    .replace(/^\s+(<)/mg, "$1")
+    .replace(/^\s*\n/, "")
+    .replace(/ +$/, "");
 
 {
     describe('options.script: boolean', () => {
         // language=HTML
         const html = `
-            <p>Some text</p>
-            <script>alert('kept');</script>
+            <p style="color: blue;" onclick="alert(true)">Some text</p>
+            <script>
+                alert('kept');
+            </script>
             <style>
                 p {
                     display: none;
@@ -17,27 +23,36 @@ const noSpace = (html: string) => html.replace(/\s*(\n)\s*/g, "$1").replace(/^\s
             </style>
         `;
 
+        // language=HTML
+        const slimmed = `
+            <p style="color: blue;">Some text</p>
+            <style>
+                p {
+                    display: none;
+                }
+            </style>
+        `.trimStart().replace(/^ +(<|$)/mg, "$1");
+
         it('default', () => {
-            const expected = noSpace(html)
-            assert.equal(slim({script: false})(html), expected)
+            assert.equal(slim({script: false})(html), noSpace(html))
         });
 
         it('{script: true}', () => {
-            const expected = '<p>Some text</p>\n<style>\np {\ndisplay: none;\n}\n</style>\n';
-            assert.equal(slim({script: true})(html), expected)
+            assert.equal(slim({script: true})(html), slimmed)
         });
 
         it('{script: false}', () => {
-            const expected = noSpace(html)
-            assert.equal(slim({script: false})(html), expected)
+            assert.equal(slim({script: false})(html), noSpace(html))
         });
     });
 
     describe('options.style: boolean', () => {
         // language=HTML
         const html = `
-            <p style="color: blue;" onclick="alert(\`hello\`)">Some text</p>
-            <script>alert('removed');</script>
+            <p style="color: blue;" onclick="alert(true)">Some text</p>
+            <script>
+                alert('removed');
+            </script>
             <style>
                 p {
                     display: block;
@@ -45,19 +60,24 @@ const noSpace = (html: string) => html.replace(/\s*(\n)\s*/g, "$1").replace(/^\s
             </style>
         `;
 
+        // language=HTML
+        const slimmed = `
+            <p onclick="alert(true)">Some text</p>
+            <script>
+                alert('removed');
+            </script>
+        `.trimStart().replace(/^ +(<|$)/mg, "$1");
+
         it('default', () => {
-            const expected = noSpace(html)
-            assert.equal(slim()(html), expected)
+            assert.equal(slim()(html), noSpace(html))
         })
 
         it('{style: true}', () => {
-            const expected = `<p onclick="alert(\`hello\`)">Some text</p>\n<script>alert('removed');</script>\n`;
-            assert.equal(slim({style: true})(html), expected)
+            assert.equal(slim({style: true})(html), slimmed)
         })
 
         it('{style: false}', () => {
-            const expected = noSpace(html)
-            assert.equal(slim({style: false})(html), expected)
+            assert.equal(slim({style: false})(html), noSpace(html))
         })
     })
 
@@ -249,7 +269,7 @@ const noSpace = (html: string) => html.replace(/\s*(\n)\s*/g, "$1").replace(/^\s
                 <li>
                     second
                 </li>
-                <li> </li>
+                <li></li>
             </ul>
         `;
 
