@@ -88,6 +88,13 @@ export const slim: typeof declared.slim = ((options = {}) => {
             }
         }
 
+        if (removeSpace && children.length === 1) {
+            const child = children[0];
+            if (isText(child) && child.data !== "" && !/\S/.test(child.data)) {
+                child.data = "";
+            }
+        }
+
         if (isElement(node)) {
             slimAttr(node)
         }

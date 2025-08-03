@@ -246,17 +246,20 @@ const noSpace = (html: string) => html.replace(/\s*(\n)\s*/g, "$1").replace(/^\s
         const html = `
             <ul>
                 <li>first</li>
-                <li>second</li>
+                <li>
+                    second
+                </li>
+                <li> </li>
             </ul>
         `;
 
         it('default', () => {
-            const expected = `<ul>\n<li>first</li>\n<li>second</li>\n</ul>\n`;
+            const expected = `<ul>\n<li>first</li>\n<li>\nsecond\n</li>\n<li></li>\n</ul>\n`;
             assert.equal(slim()(html), expected)
         });
 
         it('{space: true}', () => {
-            const expected = `<ul>\n<li>first</li>\n<li>second</li>\n</ul>\n`;
+            const expected = `<ul>\n<li>first</li>\n<li>\nsecond\n</li>\n<li></li>\n</ul>\n`;
             assert.equal(slim({space: true})(html), expected)
         });
 
