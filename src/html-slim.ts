@@ -30,7 +30,7 @@ export const slim: typeof declared.slim = ((options = {}) => {
     tagIdx.template = (options.template !== false)
 
     const rootFn = options.root;
-    const walkFn = options.walk;
+    const select = options.select;
 
     return (input) => {
         const doc = parseDocument(input);
@@ -56,7 +56,7 @@ export const slim: typeof declared.slim = ((options = {}) => {
         for (let i = length - 1; i >= 0; i--) {
             const child = children[i];
 
-            if ((walkFn && isElement(child) && walkFn(child)) ||
+            if ((select && isElement(child) && select(child)) ||
                 (isScript(child) && (isLdJson(child) ? removeLdJson : removeScript)) ||
                 (removeScript && isPreloadScript(child)) ||
                 (removeStyle && (isStyle(child) || isLinkStylesheet(child) || isPreloadStyle(child))) ||

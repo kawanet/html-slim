@@ -1,6 +1,11 @@
 import nodeResolve from "@rollup/plugin-node-resolve";
 
-const externals = {"html-slim": "{slim}", "node:test": "{describe, it}", "node:assert": "{strict: assert}"}
+const externals = {
+  "html-slim": "{slim}",
+  "node:test": "{describe, it}",
+  "node:assert": "{strict: assert}",
+  "css-select": "CSSselect"
+}
 
 export default {
   input: "../src/html-slim.test.js",

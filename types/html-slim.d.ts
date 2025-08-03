@@ -53,7 +53,7 @@ export namespace Slim {
         /**
          * Return true for elements to be deleted
          */
-        walk?: (node: Element) => boolean | void;
+        select?: (node: Element) => boolean | void;
     }
 }
 

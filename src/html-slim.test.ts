@@ -1,3 +1,4 @@
+import {compile} from "css-select";
 import type {Document} from "domhandler";
 import {strict as assert} from "node:assert";
 import {describe, it} from "node:test";
@@ -33,7 +34,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         });
     });
 
-    describe('with options.script: false', () => {
+    describe('options.script: false', () => {
         // language=HTML
         const html = `
             <p>Some text</p>
@@ -50,7 +51,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         });
     });
 
-    describe('with options.style: false', () => {
+    describe('options.style: false', () => {
         // language=HTML
         const html = `
             <p style="color: blue;" onclick="alert('hello')">Some text</p>
@@ -68,7 +69,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         })
     })
 
-    describe('with options.comment: false', () => {
+    describe('options.comment: false', () => {
         // language=HTML
         const html = `
             <!-- this is a comment -->
@@ -81,7 +82,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         });
     });
 
-    describe('with options.tag RegExp and walk Function', () => {
+    describe('options.tag: RegExp, select: Function', () => {
         // language=HTML
         const html = `
             <div>
@@ -94,19 +95,19 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         const expected = '<div><span>This should be kept</span></div>';
 
         it('{tag: /regexp/}', () => {
-            assert.equal(noSpace(slim({tag: /custom-element|another-one/})(html)), expected)
+            assert.equal(noSpace(slim({tag: /^(custom-element|another-one)$/})(html)), expected)
         });
 
-        it('{walk(){...}}', () => {
+        it('{select(){...}}', () => {
             assert.equal(noSpace(slim({
-                walk(node) {
-                    return /custom-element|another-one/.test(node.tagName)
+                select(node) {
+                    return /^(custom-element|another-one)$/.test(node.tagName)
                 }
             })(html)), expected)
         });
     });
 
-    describe('with options.attr RegExp', () => {
+    describe('options.attr: RegExp', () => {
         // language=HTML
         const html = `
             <div data-v-12345="some-value" id="app" class="container">
@@ -121,7 +122,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         });
     });
 
-    describe('with options.ldJson: boolean', () => {
+    describe('options.ldJson', () => {
         // language=HTML
         const html = `
             <div>
@@ -215,7 +216,7 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         });
     });
 
-    describe('with options.root', () => {
+    describe('options.root', () => {
         // language=HTML
         const html = `
             <html></html>
@@ -229,6 +230,36 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
             assert.equal(docs.length, 1);
             assert.equal(docs[0].nodeType, 9);
             assert.equal(docs[0].type, "root");
+        });
+    });
+
+    describe('options.select', () => {
+        // language=HTML
+        const html = `
+            <body>
+            <header>Foo</header>
+            <main>
+                <header>Bar</header>
+            </main>
+            </body>
+        `;
+
+        it('header', () => {
+            const select = compile("header");
+            const expected = `<body><main></main></body>`;
+            assert.equal(noSpace(slim({select})(html)), expected)
+        });
+
+        it('body > header', () => {
+            const select = compile("body > header");
+            const expected = `<body><main><header>Bar</header></main></body>`;
+            assert.equal(noSpace(slim({select})(html)), expected)
+        });
+
+        it('main > header', () => {
+            const select = compile("main > header");
+            const expected = `<body><header>Foo</header><main></main></body>`;
+            assert.equal(noSpace(slim({select})(html)), expected)
         });
     });
 }
