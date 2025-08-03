@@ -13,7 +13,7 @@ import {slim} from "html-slim";
 
 const slimFn = slim({
   // CSS selector for removing tags
-  select: "body > header, body > footer",
+  selector: "body > header, body > footer",
 
   // RegExp for removing tags and attributes
   tag: /^(next-|nextjs-)$/,

@@ -27,7 +27,7 @@ const keepSpace: Record<string, 1> = {
     textarea: 1,
 };
 
-export const slim: typeof declared.slim = ((options = {}) => {
+export const slim: typeof declared.slim = ((options: declared.Slim.Options = {}) => {
     const attrIdx: Record<string, boolean> = {};
     const removeLdJson = !!options.ldJson
     const removeComment = (options.comment !== false)
@@ -36,8 +36,8 @@ export const slim: typeof declared.slim = ((options = {}) => {
     const removeScript = !!options.script
     const eventRE = removeScript && /^on\w+$/i;
     const removeStyle = attrIdx.style = !!options.style
-    const select = options.select;
-    const selectFn = select && compile(select)
+    const selector = options.selector;
+    const selectFn = selector && compile(selector)
     const removeSpace = (options.space !== false)
 
     return (input) => {

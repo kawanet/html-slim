@@ -34,16 +34,7 @@
 <body>
 <div class="parent">
   <textarea id="source"></textarea>
-  <textarea id="option">{
-  script: true,
-  ldJson: false,
-  style: true,
-  comment: true,
-  tag: /^(next-|nextjs-)$/,
-  attr: /^data-v-/,
-  select: "body > header, body > footer",
-  space: true,
-}</textarea>
+  <textarea id="option"></textarea>
   <textarea id="result"></textarea>
 </div>
 <script>
@@ -62,7 +53,6 @@
         if (options.attr) {
           options.attr = new RegExp(options.attr);
         }
-        console.warn(options)
         $result.value = slim(options)($source.value)
       } catch (e) {
         $result.value = String(e)
@@ -77,12 +67,12 @@
     $source.value = await res.text();
 
     $option.value = JSON.stringify({
+      selector: "body > header, body > footer",
       script: true,
       ldJson: false,
       style: true,
-      comment: true,
-      select: "body > header, body > footer",
       space: true,
+      comment: true,
     }, null, 2);
 
     setTimeout(onChange, 1);

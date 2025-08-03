@@ -105,7 +105,7 @@ const noSpace = (html: string) => html
         });
     });
 
-    describe('options.tag: RegExp, select: string', () => {
+    describe('options.tag: RegExp, selector: string', () => {
         // language=HTML
         const html = `
             <div>
@@ -121,8 +121,8 @@ const noSpace = (html: string) => html
             assert.equal(slim({tag: /^(custom-element|another-one)$/})(html), expected)
         });
 
-        it('{select: "selector"}', () => {
-            assert.equal(slim({select: "custom-element, another-one"})(html), expected)
+        it('{selector: "selector"}', () => {
+            assert.equal(slim({selector: "custom-element, another-one"})(html), expected)
         });
     });
 
@@ -235,7 +235,7 @@ const noSpace = (html: string) => html
         });
     });
 
-    describe('options.select: string', () => {
+    describe('options.selector: string', () => {
         // language=HTML
         const html = `
             <body>
@@ -248,17 +248,17 @@ const noSpace = (html: string) => html
 
         it('header', () => {
             const expected = `<body>\n<main>\n</main>\n</body>\n`;
-            assert.equal(slim({select: "header"})(html), expected)
+            assert.equal(slim({selector: "header"})(html), expected)
         });
 
         it('body > header', () => {
             const expected = `<body>\n<main>\n<header>Bar</header>\n</main>\n</body>\n`;
-            assert.equal(slim({select: "body > header"})(html), expected)
+            assert.equal(slim({selector: "body > header"})(html), expected)
         });
 
         it('main > header', () => {
             const expected = `<body>\n<header>Foo</header>\n<main>\n</main>\n</body>\n`;
-            assert.equal(slim({select: "main > header"})(html), expected)
+            assert.equal(slim({selector: "main > header"})(html), expected)
         });
     });
 

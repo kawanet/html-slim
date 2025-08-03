@@ -45,7 +45,7 @@ export namespace Slim {
          * CSS selector to test elements to be deleted
          * @example "body > header, body > footer"
          */
-        select?: string;
+        selector?: string;
 
         /**
          * Collapse consecutive whitespaces into a single.
