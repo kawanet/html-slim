@@ -67,7 +67,7 @@ export const slim: typeof declared.slim = ((options = {}) => {
     function slimNode(node: NodeWithChildren): void {
         const {children} = node
 
-        for (let i = 0; i < children.length; i++) {
+        for (let i = children.length - 1; i >= 0; i--) {
             const child = children[i];
 
             if ((isElement(child) &&
@@ -77,16 +77,14 @@ export const slim: typeof declared.slim = ((options = {}) => {
                         (removeScript && isPreloadScript(child)) ||
                         (removeStyle && (isStyle(child) || isLinkStylesheet(child) || isPreloadStyle(child))))) ||
                 (removeComment && isComment(child))) {
-                children.splice(i--, 1);
+                children.splice(i++, 1);
             } else if (isNodeWithChildren(child)) {
                 slimNode(child); // recursive call
             } else if (removeSpace && isText(child)) {
-                if (i > 0) {
-                    const prev = children[i - 1]
-                    if (isText(prev)) {
-                        child.data = prev.data + child.data;
-                        prev.data = ""
-                    }
+                const next = children[i + 1]
+                if (next && isText(next)) {
+                    child.data = next.data + child.data;
+                    next.data = ""
                 }
 
                 if (keepSpace[(node as Element).name]) {

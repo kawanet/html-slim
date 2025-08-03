@@ -84,17 +84,18 @@ const noSpace = (html: string) => html
     describe('options.comment: boolean', () => {
         // language=HTML
         const html = `
-            <!-- this is a comment -->
+            <!-- this is the first comment -->
             <p>Some text</p>
+            <!-- this is the last comment -->
         `;
 
         it('default', () => {
-            const expected = '\n<p>Some text</p>\n';
+            const expected = '<p>Some text</p>\n';
             assert.equal(slim()(html), expected)
         });
 
         it('{comment: true}', () => {
-            const expected = '\n<p>Some text</p>\n';
+            const expected = '<p>Some text</p>\n';
             assert.equal(slim({comment: true})(html), expected)
         });
 
