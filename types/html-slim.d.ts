@@ -46,11 +46,6 @@ export namespace Slim {
         attr?: { test(name: string): boolean };
 
         /**
-         * Hook to be called when the document parsed
-         */
-        root?: (doc: Document) => void;
-
-        /**
          * Return true for elements to be deleted
          */
         select?: (node: Element) => boolean | void;

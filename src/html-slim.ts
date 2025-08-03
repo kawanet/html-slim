@@ -29,12 +29,10 @@ export const slim: typeof declared.slim = ((options = {}) => {
     const removeStyle = attrIdx.style = (options.style !== false)
     tagIdx.template = (options.template !== false)
 
-    const rootFn = options.root;
     const select = options.select;
 
     return (input) => {
         const doc = parseDocument(input);
-        if (rootFn) rootFn(doc);
         slimNode(doc);
         return render(doc);
     }

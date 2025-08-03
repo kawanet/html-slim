@@ -1,5 +1,4 @@
 import {compile} from "css-select";
-import type {Document} from "domhandler";
 import {strict as assert} from "node:assert";
 import {describe, it} from "node:test";
 import {slim} from "./html-slim.js";
@@ -213,23 +212,6 @@ const noSpace = (html: string) => html.replace(/\s+(<|$)|(^|>)\s+/mg, "$1$2").re
         it('{style: false, script: false}', () => {
             const expected = '<head><link rel="preload" href="style.css" as="style"><link rel="preload" href="main.js" as="script"></head>';
             assert.equal(noSpace(slim({style: false, script: false})(html)), expected)
-        });
-    });
-
-    describe('options.root', () => {
-        // language=HTML
-        const html = `
-            <html></html>
-        `;
-
-        it('{root: (doc) => void}', () => {
-            const docs: Document[] = [];
-            const result = slim({root: doc => docs.push(doc)})(html)
-            const expected = '<html></html>';
-            assert.equal(noSpace(result), expected);
-            assert.equal(docs.length, 1);
-            assert.equal(docs[0].nodeType, 9);
-            assert.equal(docs[0].type, "root");
         });
     });
 
