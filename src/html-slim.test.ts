@@ -150,6 +150,25 @@ const noSpace = (html: string) => html
         });
     });
 
+    describe('options.className: RegExp', () => {
+        // language=HTML
+        const html = `
+            <div class=" foo _bar "></div>
+        `;
+
+        it('{className: /^(\\w+)$/}', () => {
+            assert.equal(slim({className: /^(\w+)$/})(html), `<div></div>\n`)
+        });
+
+        it('{className: /^(_\\w+)$/}', () => {
+            assert.equal(slim({className: /^(_\w+)$/})(html), `<div class="foo"></div>\n`)
+        });
+
+        it('{className: /^(__\\w+)$/}', () => {
+            assert.equal(slim({className: /^(__\w+)$/})(html), `<div class=" foo _bar "></div>\n`)
+        });
+    });
+
     describe('options.ldJson: boolean', () => {
         // language=HTML
         const html = `

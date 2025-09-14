@@ -43,6 +43,13 @@ export namespace Slim {
         attr?: string | { test(name: string): boolean };
 
         /**
+         * RegExp to test class tokens to be deleted
+         * @example "^(_\\w{7})$"
+         * @example /^(_\w{7})$/
+         */
+        className?: string | { test(name: string): boolean };
+
+        /**
          * CSS selector to test elements to be deleted
          * @example "body > header, body > footer"
          */

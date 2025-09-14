@@ -1,7 +1,7 @@
 {
   "name": "html-slim",
   "description": "A utility to slim down HTML by removing spaces, comments, tags and attributes.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Kawanet",
   "bin": {
     "html-slim": "./bin/html-slim.cli.js"
