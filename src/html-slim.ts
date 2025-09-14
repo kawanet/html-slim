@@ -77,7 +77,7 @@ export const slim: typeof declared.slim = ((options: declared.Slim.Options = {})
                 const array = attribs[key]?.trim?.().split(/\s+/)
                 const before = array?.length
                 if (before) {
-                    const filtered = array.filter(v => !classRE.test(v))
+                    const filtered = array.filter(v => v && !classRE.test(v))
                     const after = filtered.length
                     if (!after) {
                         delete attribs[key]

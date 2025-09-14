@@ -153,9 +153,10 @@ const noSpace = (html: string) => html
     describe('options.className: RegExp', () => {
         // language=HTML
         const html = `
-            <div class=" foo _bar "></div>
+            <div class=" foo _bar __buz "></div>
         `;
 
+        // removes the attribute when all class tokens are removed
         it('{className: /^(\\w+)$/}', () => {
             assert.equal(slim({className: /^(\w+)$/})(html), `<div></div>\n`)
         });
@@ -165,7 +166,12 @@ const noSpace = (html: string) => html
         });
 
         it('{className: /^(__\\w+)$/}', () => {
-            assert.equal(slim({className: /^(__\w+)$/})(html), `<div class=" foo _bar "></div>\n`)
+            assert.equal(slim({className: /^(__\w+)$/})(html), `<div class="foo _bar"></div>\n`)
+        });
+
+        // preserves the attribute when no class tokens match
+        it('{className: /^x-/}', () => {
+            assert.equal(slim({className: /^x-/})(html), `<div class=" foo _bar __buz "></div>\n`)
         });
     });
 
