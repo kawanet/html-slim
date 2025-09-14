@@ -23,6 +23,7 @@ async function readStdin() {
         comment: B,
         tag: S,
         attr: S,
+        className: S,
         selector: S,
         space: B,
     }
