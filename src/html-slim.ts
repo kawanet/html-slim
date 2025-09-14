@@ -45,6 +45,7 @@ export const slim: typeof declared.slim = ((options: declared.Slim.Options = {})
     const removeComment = (options.comment !== false)
     const tagRE = toTestable(options.tag)
     const attrRE = toTestable(options.attr)
+    const classRE = toTestable(options.className)
     const removeScript = !!options.script
     const eventRE = removeScript && /^on\w+$/i;
     const removeStyle = attrIdx.style = !!options.style
@@ -72,6 +73,18 @@ export const slim: typeof declared.slim = ((options: declared.Slim.Options = {})
         Object.keys(attribs).forEach(key => {
             if (attrIdx[key] || (eventRE && eventRE.test(key)) || (attrRE && attrRE.test(key))) {
                 delete attribs[key];
+            } else if (classRE && /^class$/.test(key)) {
+                const array = attribs[key]?.trim?.().split(/\s+/)
+                const before = array?.length
+                if (before) {
+                    const filtered = array.filter(v => v && !classRE.test(v))
+                    const after = filtered.length
+                    if (!after) {
+                        delete attribs[key]
+                    } else if (after !== before) {
+                        attribs[key] = filtered.join(" ")
+                    }
+                }
             }
         })
     }

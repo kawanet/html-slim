@@ -15,9 +15,10 @@ const slimFn = slim({
   // CSS selector for removing tags
   selector: "body > header, body > footer",
 
-  // RegExp for removing tags and attributes
-  tag: /^(next-|nextjs-)$/,
+  // RegExp for removing tags, attributes and class tokens
+  tag: /^(next-|nextjs-)/,
   attr: /^data-v-/,
+  className: /^_\w{7}$/,
 
   // shortcut for removing scripts and styles
   script: true,
@@ -36,6 +37,17 @@ const compactHtml = slimFn(originalHtml);
 
 ```js
 const {slim} = require("html-slim");
+```
+
+## BROWSERS
+
+```js
+<script src="https://unpkg.com/html-slim/dist/html-slim.min.js"></script>
+<script>
+  const slimFn = slim({})
+  const html = slimFn(document.documentElement.outerHTML);
+  console.log(html);
+</script>
 ```
 
 ## TYPESCRIPT
