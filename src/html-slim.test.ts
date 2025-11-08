@@ -332,4 +332,48 @@ const noSpace = (html: string) => html
             assert.equal(slim()(html), html)
         });
     });
+
+    describe('multiple options', () => {
+        it(`[{attr: /^data-v-/}, {className: /^_/}, {script: true}]`, () => {
+            // language=HTML
+            const html = `
+                <div data-v-12345="some-value" class=" foo _bar ">
+                    <!-- a comment -->
+                    <p style="color: blue;" onclick="alert(true)">Some text</p>
+                </div>
+            `;
+
+            const fn = slim([
+                {attr: /^data-v-/},
+                {className: /^_/},
+                {script: true}
+            ]);
+
+            const expected = `<div class="foo">\n<p style="color: blue;">Some text</p>\n</div>\n`;
+
+            assert.equal(fn(html), expected)
+        })
+    })
+    describe('empty option', () => {
+        // language=HTML
+        const html = `
+            <div>
+                <!-- a comment -->
+            </div>
+        `;
+
+        const expected = `<div></div>\n`;
+
+        it(`[]`, () => {
+            assert.equal(slim([])(html), expected)
+        })
+
+        it(`{}`, () => {
+            assert.equal(slim({})(html), expected)
+        })
+
+        it(`null`, () => {
+            assert.equal(slim(null)(html), expected)
+        })
+    })
 }

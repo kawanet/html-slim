@@ -1,6 +1,6 @@
 # html-slim
 
-[![Node.js CI](https://github.com/kawanet/html-slim/workflows/Node.js%20CI/badge.svg?branch=main)](https://github.com/kawanet/html-slim/actions/)
+[![Node.js CI](https://github.com/kawanet/html-slim/workflows/Node.js%20CI/badge.svg)](https://github.com/kawanet/html-slim/actions/)
 [![npm version](https://img.shields.io/npm/v/html-slim)](https://www.npmjs.com/package/html-slim)
 [![gzip size](https://img.badgesize.io/https://unpkg.com/html-slim/dist/html-slim.min.js?compression=gzip)](https://unpkg.com/html-slim/dist/html-slim.min.js)
 
