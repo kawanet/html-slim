@@ -40,7 +40,7 @@ const toTestable = (v: string | Testable): Testable | undefined => {
 }
 
 export const slim: typeof declared.slim = (option) => {
-    const transformers = (Array.isArray(option) ? option : [option]).map(getTransformFn)
+    const transformers = (Array.isArray(option) ? option.length ? option : [{}] : [option || {}]).map(getTransformFn)
 
     return (input) => {
         const doc = parseDocument(input);
@@ -51,7 +51,7 @@ export const slim: typeof declared.slim = (option) => {
     }
 }
 
-const getTransformFn = (options: declared.Slim.Options = {}) => {
+const getTransformFn = (options: declared.Slim.Options) => {
     const attrIdx: Record<string, boolean> = {};
     const removeLdJson = !!options.ldJson
     const removeComment = (options.comment !== false)
