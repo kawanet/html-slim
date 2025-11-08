@@ -67,4 +67,4 @@ export namespace Slim {
 /**
  * Strip out scripts, styles and comments from an HTML string.
  */
-export const slim: (options?: Slim.Options) => (html: string) => string;
+export const slim: (options?: Slim.Options | Slim.Options[]) => (html: string) => string;

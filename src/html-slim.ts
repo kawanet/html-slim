@@ -1,6 +1,6 @@
 import {compile} from "css-select";
 import {render} from "dom-serializer"
-import type {Comment, Element, Node, NodeWithChildren, Text} from "domhandler"
+import type {Comment, Document, Element, Node, NodeWithChildren, Text} from "domhandler"
 import {parseDocument} from "htmlparser2"
 import type * as declared from "../types/html-slim.js";
 
@@ -39,7 +39,19 @@ const toTestable = (v: string | Testable): Testable | undefined => {
     }
 }
 
-export const slim: typeof declared.slim = ((options: declared.Slim.Options = {}) => {
+export const slim: typeof declared.slim = (option) => {
+    const transformers = (Array.isArray(option) ? option : [option]).map(getTransformFn)
+
+    return (input) => {
+        const doc = parseDocument(input);
+
+        transformers.forEach(fn => fn(doc))
+
+        return render(doc, {encodeEntities: "utf8"});
+    }
+}
+
+const getTransformFn = (options: declared.Slim.Options = {}) => {
     const attrIdx: Record<string, boolean> = {};
     const removeLdJson = !!options.ldJson
     const removeComment = (options.comment !== false)
@@ -53,9 +65,8 @@ export const slim: typeof declared.slim = ((options: declared.Slim.Options = {})
     const selectFn = selector && compile(selector)
     const removeSpace = (options.space !== false)
 
-    return (input) => {
-        const doc = parseDocument(input);
-        slimNode(doc);
+    return (doc: Document): void => {
+        slimNode(doc)
 
         if (removeSpace) {
             const first = doc.children[0]
@@ -63,8 +74,6 @@ export const slim: typeof declared.slim = ((options: declared.Slim.Options = {})
                 first.data = first.data.replace(/^\s*\n/, "")
             }
         }
-
-        return render(doc, {encodeEntities: "utf8"});
     }
 
     function slimAttr(node: Element) {
@@ -170,4 +179,4 @@ export const slim: typeof declared.slim = ((options: declared.Slim.Options = {})
             slimAttr(node)
         }
     }
-});
+}
