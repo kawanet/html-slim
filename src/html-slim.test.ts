@@ -2,10 +2,13 @@ import {strict as assert} from "node:assert";
 import {describe, it} from "node:test";
 import {slim} from "./html-slim.js";
 
+// Mirror html-slim's whitespace handling: only ASCII [ \t\r\n] count as space.
+// Using \s would also match U+3000 and break comparisons when full-width
+// spaces appear in the expected output.
 const noSpace = (html: string) => html
-    .replace(/>\s*(\n)\s*</g, ">$1<")
-    .replace(/^\s+(<)/mg, "$1")
-    .replace(/^\s*\n/, "")
+    .replace(/>[ \t\r\n]*(\n)[ \t\r\n]*</g, ">$1<")
+    .replace(/^[ \t\r\n]+(<)/mg, "$1")
+    .replace(/^[ \t\r\n]*\n/, "")
     .replace(/ +$/, "");
 
 {
@@ -354,6 +357,47 @@ const noSpace = (html: string) => html
             assert.equal(fn(html), expected)
         })
     })
+    describe('full-width space (U+3000)', () => {
+        // U+3000 is invisible in source, so always write it as the \u3000 escape.
+        // html-slim treats U+3000 as a visible character, not whitespace to collapse.
+
+        it('preserves U+3000 between sibling tags', () => {
+            // a full-width space between siblings survives collapsing of newlines/indent
+            const html = `\n    <div>\n        <span>foo</span>\u3000<span>bar</span>\n    </div>\n`;
+            const expected = `<div>\n<span>foo</span>\u3000<span>bar</span>\n</div>\n`;
+            assert.equal(slim()(html), expected)
+        });
+
+        it('preserves U+3000 inside text content', () => {
+            // a full-width space between words inside a tag is kept as-is
+            const html = `\n    <p>foo\u3000bar</p>\n`;
+            const expected = `<p>foo\u3000bar</p>\n`;
+            assert.equal(slim()(html), expected)
+        });
+
+        it('preserves U+3000 used as indent', () => {
+            // a leading full-width space is not stripped, unlike ASCII spaces
+            const html = `\n    <p>\n        \u3000Japanese indent\n    </p>\n`;
+            const expected = `<p>\n\u3000Japanese indent\n</p>\n`;
+            assert.equal(slim()(html), expected)
+        });
+
+        it('preserves U+3000-only text node', () => {
+            // a text node containing only U+3000 is not treated as blank
+            const html = `<div>\u3000</div>`;
+            const expected = `<div>\u3000</div>`;
+            assert.equal(slim()(html), expected)
+        });
+
+        it('preserves U+3000 in class attribute as a class name', () => {
+            // class tokens split on ASCII whitespace only; "foo\u3000bar" is one token
+            const html = `\n    <div class="foo\u3000bar baz"></div>\n`;
+            // two tokens "foo\u3000bar" and "baz"; neither matches className regex
+            const expected = `<div class="foo\u3000bar baz"></div>\n`;
+            assert.equal(slim({className: /^x-/})(html), expected)
+        });
+    });
+
     describe('empty option', () => {
         // language=HTML
         const html = `
