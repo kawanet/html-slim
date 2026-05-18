@@ -71,7 +71,7 @@ const getTransformFn = (options: declared.Slim.Options) => {
         if (removeSpace) {
             const first = doc.children[0]
             if (first && isText(first)) {
-                first.data = first.data.replace(/^\s*\n/, "")
+                first.data = first.data.replace(/^[ \t\r\n]*[\r\n]/, "")
             }
         }
     }
@@ -83,7 +83,7 @@ const getTransformFn = (options: declared.Slim.Options) => {
             if (attrIdx[key] || (eventRE && eventRE.test(key)) || (attrRE && attrRE.test(key))) {
                 delete attribs[key];
             } else if (classRE && /^class$/.test(key)) {
-                const array = attribs[key]?.trim?.().split(/\s+/)
+                const array = attribs[key]?.trim?.().split(/[ \t\r\n]+/)
                 const before = array?.length
                 if (before) {
                     const filtered = array.filter(v => v && !classRE.test(v))
@@ -153,10 +153,10 @@ const getTransformFn = (options: declared.Slim.Options) => {
                      * delete spaces
                      */
                     if (keepSpace[(node as Element).name]) {
-                        child.data = child.data.replace(/\s*\n\s*$/g, "\n")
+                        child.data = child.data.replace(/[ \t\r\n]*[\r\n][ \t\r\n]*$/g, "\n")
                     } else {
                         child.data = child.data
-                            .replace(/\s*\n+\s*/g, "\n")
+                            .replace(/[ \t\r\n]*[\r\n][ \t\r\n]*/g, "\n")
                             .replace(/[ \t]{2,}/g, " ")
                     }
                 } else {
@@ -169,7 +169,7 @@ const getTransformFn = (options: declared.Slim.Options) => {
              */
             if (!others) {
                 const first = children[0];
-                if (first && isText(first) && first.data !== "" && !/\S/.test(first.data)) {
+                if (first && isText(first) && first.data !== "" && !/[^ \t\r\n]/.test(first.data)) {
                     first.data = "";
                 }
             }
