@@ -71,7 +71,7 @@ const getTransformFn = (options: declared.Slim.Options) => {
         if (removeSpace) {
             const first = doc.children[0]
             if (first && isText(first)) {
-                first.data = first.data.replace(/^\s*\n/, "")
+                first.data = first.data.replace(/^[ \t\r\n]*[\r\n]/, "")
             }
         }
     }
@@ -83,14 +83,16 @@ const getTransformFn = (options: declared.Slim.Options) => {
             if (attrIdx[key] || (eventRE && eventRE.test(key)) || (attrRE && attrRE.test(key))) {
                 delete attribs[key];
             } else if (classRE && /^class$/.test(key)) {
-                const array = attribs[key]?.trim?.().split(/\s+/)
-                const before = array?.length
-                if (before) {
-                    const filtered = array.filter(v => v && !classRE.test(v))
-                    const after = filtered.length
-                    if (!after) {
+                // String.prototype.trim() strips Unicode whitespace including U+3000,
+                // so split on ASCII whitespace and discard empty tokens manually.
+                // An empty token array still falls through to the delete branch so
+                // that class="" and class="   " are removed, matching prior behavior.
+                const array = attribs[key]?.split?.(/[ \t\r\n]+/)?.filter(v => v)
+                if (array) {
+                    const filtered = array.filter(v => !classRE.test(v))
+                    if (!filtered.length) {
                         delete attribs[key]
-                    } else if (after !== before) {
+                    } else if (filtered.length !== array.length) {
                         attribs[key] = filtered.join(" ")
                     }
                 }
@@ -153,10 +155,10 @@ const getTransformFn = (options: declared.Slim.Options) => {
                      * delete spaces
                      */
                     if (keepSpace[(node as Element).name]) {
-                        child.data = child.data.replace(/\s*\n\s*$/g, "\n")
+                        child.data = child.data.replace(/[ \t\r\n]*[\r\n][ \t\r\n]*$/g, "\n")
                     } else {
                         child.data = child.data
-                            .replace(/\s*\n+\s*/g, "\n")
+                            .replace(/[ \t\r\n]*[\r\n][ \t\r\n]*/g, "\n")
                             .replace(/[ \t]{2,}/g, " ")
                     }
                 } else {
@@ -169,7 +171,7 @@ const getTransformFn = (options: declared.Slim.Options) => {
              */
             if (!others) {
                 const first = children[0];
-                if (first && isText(first) && first.data !== "" && !/\S/.test(first.data)) {
+                if (first && isText(first) && first.data !== "" && !/[^ \t\r\n]/.test(first.data)) {
                     first.data = "";
                 }
             }
