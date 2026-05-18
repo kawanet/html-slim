@@ -358,7 +358,6 @@ const noSpace = (html: string) => html
         })
     })
     describe('full-width space (U+3000)', () => {
-        // U+3000 is invisible in source, so always write it as the \u3000 escape.
         // html-slim treats U+3000 as a visible character, not whitespace to collapse.
 
         it('preserves U+3000 between sibling tags', () => {
