@@ -84,16 +84,15 @@ const getTransformFn = (options: declared.Slim.Options) => {
                 delete attribs[key];
             } else if (classRE && /^class$/.test(key)) {
                 // String.prototype.trim() strips Unicode whitespace including U+3000,
-                // so use ASCII-only split and drop the empty tokens caused by
-                // leading/trailing whitespace.
+                // so split on ASCII whitespace and discard empty tokens manually.
+                // An empty token array still falls through to the delete branch so
+                // that class="" and class="   " are removed, matching prior behavior.
                 const array = attribs[key]?.split?.(/[ \t\r\n]+/)?.filter(v => v)
-                const before = array?.length
-                if (before) {
-                    const filtered = array.filter(v => v && !classRE.test(v))
-                    const after = filtered.length
-                    if (!after) {
+                if (array) {
+                    const filtered = array.filter(v => !classRE.test(v))
+                    if (!filtered.length) {
                         delete attribs[key]
-                    } else if (after !== before) {
+                    } else if (filtered.length !== array.length) {
                         attribs[key] = filtered.join(" ")
                     }
                 }

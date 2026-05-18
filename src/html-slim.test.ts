@@ -6,7 +6,7 @@ import {slim} from "./html-slim.js";
 // Using \s would also match U+3000 and break comparisons when full-width
 // spaces appear in the expected output.
 const noSpace = (html: string) => html
-    .replace(/>[ \t\r\n]*(\n)[ \t\r\n]*</g, ">$1<")
+    .replace(/>[ \t\r\n]*[\r\n][ \t\r\n]*</g, ">\n<")
     .replace(/^[ \t\r\n]+(<)/mg, "$1")
     .replace(/^[ \t\r\n]*[\r\n]/, "")
     .replace(/ +$/, "");
@@ -175,6 +175,16 @@ const noSpace = (html: string) => html
         // preserves the attribute when no class tokens match
         it('{className: /^x-/}', () => {
             assert.equal(slim({className: /^x-/})(html), `<div class=" foo _bar __buz "></div>\n`)
+        });
+
+        // removes the attribute when the value has no meaningful tokens, even if
+        // the className regex matches nothing in particular.
+        it('removes empty class=""', () => {
+            assert.equal(slim({className: /^x-/})(`<div class=""></div>`), `<div></div>`)
+        });
+
+        it('removes class with only ASCII whitespace', () => {
+            assert.equal(slim({className: /^x-/})(`<div class="   "></div>`), `<div></div>`)
         });
     });
 
