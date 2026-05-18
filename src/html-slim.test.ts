@@ -8,7 +8,7 @@ import {slim} from "./html-slim.js";
 const noSpace = (html: string) => html
     .replace(/>[ \t\r\n]*(\n)[ \t\r\n]*</g, ">$1<")
     .replace(/^[ \t\r\n]+(<)/mg, "$1")
-    .replace(/^[ \t\r\n]*\n/, "")
+    .replace(/^[ \t\r\n]*[\r\n]/, "")
     .replace(/ +$/, "");
 
 {

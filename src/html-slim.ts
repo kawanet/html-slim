@@ -83,7 +83,10 @@ const getTransformFn = (options: declared.Slim.Options) => {
             if (attrIdx[key] || (eventRE && eventRE.test(key)) || (attrRE && attrRE.test(key))) {
                 delete attribs[key];
             } else if (classRE && /^class$/.test(key)) {
-                const array = attribs[key]?.trim?.().split(/[ \t\r\n]+/)
+                // String.prototype.trim() strips Unicode whitespace including U+3000,
+                // so use ASCII-only split and drop the empty tokens caused by
+                // leading/trailing whitespace.
+                const array = attribs[key]?.split?.(/[ \t\r\n]+/)?.filter(v => v)
                 const before = array?.length
                 if (before) {
                     const filtered = array.filter(v => v && !classRE.test(v))
