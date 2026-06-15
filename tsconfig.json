@@ -19,6 +19,9 @@
     "removeComments": false,
     "skipLibCheck": false,
     "strictNullChecks": false,
-    "target": "ES2022"
+    "target": "ES2022",
+    "types": [
+      "node"
+    ]
   }
 }
