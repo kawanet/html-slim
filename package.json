@@ -1,7 +1,7 @@
 {
   "name": "html-slim",
   "description": "A utility to slim down HTML by removing spaces, comments, tags and attributes.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Kawanet",
   "bin": {
     "html-slim": "./bin/html-slim.cli.js"
@@ -12,14 +12,14 @@
     "htmlparser2": "^10.0.0"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^29.0.2",
+    "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@types/node": "^24.10.0",
     "chai": "^6.2.2",
     "domhandler": "^5.0.3",
-    "mocha": "^11.7.5",
-    "rollup": "^4.60.4",
-    "terser": "^5.47.1",
+    "mocha": "^11.7.6",
+    "rollup": "^4.62.0",
+    "terser": "^5.48.0",
     "ts-refine": "^0.6.0",
     "typescript": "^6.0.3"
   },
