@@ -15,8 +15,12 @@
     "noUnusedParameters": true,
     "outDir": ".",
     "removeComments": false,
+    "rootDir": "../src",
     "skipLibCheck": false,
     "strictNullChecks": false,
-    "target": "ES2022"
+    "target": "ES2022",
+    "types": [
+      "node"
+    ]
   }
 }
