@@ -1,41 +1,41 @@
-import {compile} from "css-select";
+import {compile} from "css-select"
 import {render} from "dom-serializer"
 import type {Comment, Document, Element, Node, NodeWithChildren, Text} from "domhandler"
 import {parseDocument} from "htmlparser2"
-import type * as declared from "../types/html-slim.js";
+import type * as declared from "../types/html-slim.js"
 
-const isElement = (node: Node): node is Element => (node.nodeType === 1);
-const isText = (node: Node): node is Text => (node.nodeType === 3);
-const isComment = (node: Node): node is Comment => (node.nodeType === 8);
-const isNodeWithChildren = (node: Node): node is NodeWithChildren => (!!(node as NodeWithChildren).children);
+const isElement = (node: Node): node is Element => (node.nodeType === 1)
+const isText = (node: Node): node is Text => (node.nodeType === 3)
+const isComment = (node: Node): node is Comment => (node.nodeType === 8)
+const isNodeWithChildren = (node: Node): node is NodeWithChildren => (!!(node as NodeWithChildren).children)
 
-const isLink = (node: Element): boolean => (node.name === "link");
-const isPreload = (node: Element): boolean => (isLink(node) && node.attribs.rel?.toLowerCase() === "preload");
-const isModulepreload = (node: Element): boolean => (isLink(node) && node.attribs.rel?.toLowerCase() === "modulepreload");
+const isLink = (node: Element): boolean => (node.name === "link")
+const isPreload = (node: Element): boolean => (isLink(node) && node.attribs.rel?.toLowerCase() === "preload")
+const isModulepreload = (node: Element): boolean => (isLink(node) && node.attribs.rel?.toLowerCase() === "modulepreload")
 
-const isScript = (node: Element): boolean => (node.name === "script");
-const isLdJson = (node: Element): boolean => (node.attribs.type?.split(";")[0]?.toLowerCase() === "application/ld+json");
-const isPreloadScript = (node: Element): boolean => (isPreload(node) && node.attribs.as?.toLowerCase() === "script");
+const isScript = (node: Element): boolean => (node.name === "script")
+const isLdJson = (node: Element): boolean => (node.attribs.type?.split(";")[0]?.toLowerCase() === "application/ld+json")
+const isPreloadScript = (node: Element): boolean => (isPreload(node) && node.attribs.as?.toLowerCase() === "script")
 
-const isStyle = (node: Element): boolean => (node.name === "style");
-const isLinkStylesheet = (node: Element): boolean => (isLink(node) && node.attribs.rel?.toLowerCase() === "stylesheet");
-const isPreloadStyle = (node: Element): boolean => (isPreload(node) && node.attribs.as?.toLowerCase() === "style");
+const isStyle = (node: Element): boolean => (node.name === "style")
+const isLinkStylesheet = (node: Element): boolean => (isLink(node) && node.attribs.rel?.toLowerCase() === "stylesheet")
+const isPreloadStyle = (node: Element): boolean => (isPreload(node) && node.attribs.as?.toLowerCase() === "style")
 
 const keepSpace: Record<string, 1> = {
     pre: 1,
     script: 1,
     style: 1,
     textarea: 1,
-};
+}
 
-type Testable = { test(name: string): boolean }
+type Testable = {test(name: string): boolean}
 
 const toTestable = (v: string | Testable): Testable | undefined => {
     if (!v) return
     if ("string" === typeof v) {
         return new RegExp(v, "i")
     } else {
-        return v;
+        return v
     }
 }
 
@@ -43,25 +43,25 @@ export const slim: typeof declared.slim = (option) => {
     const transformers = (Array.isArray(option) ? option.length ? option : [{}] : [option || {}]).map(getTransformFn)
 
     return (input) => {
-        const doc = parseDocument(input);
+        const doc = parseDocument(input)
 
         transformers.forEach(fn => fn(doc))
 
-        return render(doc, {encodeEntities: "utf8"});
+        return render(doc, {encodeEntities: "utf8"})
     }
 }
 
 const getTransformFn = (options: declared.Slim.Options) => {
-    const attrIdx: Record<string, boolean> = {};
+    const attrIdx: Record<string, boolean> = {}
     const removeLdJson = !!options.ldJson
     const removeComment = (options.comment !== false)
     const tagRE = toTestable(options.tag)
     const attrRE = toTestable(options.attr)
     const classRE = toTestable(options.className)
     const removeScript = !!options.script
-    const eventRE = removeScript && /^on\w+$/i;
+    const eventRE = removeScript && /^on\w+$/i
     const removeStyle = attrIdx.style = !!options.style
-    const selector = options.selector;
+    const selector = options.selector
     const selectFn = selector && compile(selector)
     const removeSpace = (options.space !== false)
 
@@ -81,7 +81,7 @@ const getTransformFn = (options: declared.Slim.Options) => {
 
         Object.keys(attribs).forEach(key => {
             if (attrIdx[key] || (eventRE && eventRE.test(key)) || (attrRE && attrRE.test(key))) {
-                delete attribs[key];
+                delete attribs[key]
             } else if (classRE && /^class$/.test(key)) {
                 // String.prototype.trim() strips Unicode whitespace including U+3000,
                 // so split on ASCII whitespace and discard empty tokens manually.
@@ -108,18 +108,18 @@ const getTransformFn = (options: declared.Slim.Options) => {
          * detect elements to be deleted
          */
         for (let i = 0; i < children.length; i++) {
-            const child = children[i];
+            const child = children[i]
 
             if ((isElement(child) &&
-                    ((selectFn && selectFn(child)) ||
-                        (tagRE && tagRE.test(child.tagName)) ||
-                        (isScript(child) && (isLdJson(child) ? removeLdJson : removeScript)) ||
-                        (removeScript && (isPreloadScript(child) || isModulepreload(child))) ||
-                        (removeStyle && (isStyle(child) || isLinkStylesheet(child) || isPreloadStyle(child))))) ||
+                ((selectFn && selectFn(child)) ||
+                    (tagRE && tagRE.test(child.tagName)) ||
+                    (isScript(child) && (isLdJson(child) ? removeLdJson : removeScript)) ||
+                    (removeScript && (isPreloadScript(child) || isModulepreload(child))) ||
+                    (removeStyle && (isStyle(child) || isLinkStylesheet(child) || isPreloadStyle(child))))) ||
                 (removeComment && isComment(child))) {
-                deleting.push(i);
+                deleting.push(i)
             } else if (isNodeWithChildren(child)) {
-                slimNode(child); // recursive call
+                slimNode(child) // recursive call
             }
         }
 
@@ -127,27 +127,27 @@ const getTransformFn = (options: declared.Slim.Options) => {
          * delete elements
          */
         for (let i = deleting.length - 1; i >= 0; i--) {
-            const pos = deleting[i];
-            const child = children[pos];
-            const {prev, next} = child;
-            children.splice(pos, 1);
-            if (prev) prev.next = next;
-            if (next) next.prev = prev;
+            const pos = deleting[i]
+            const child = children[pos]
+            const {prev, next} = child
+            children.splice(pos, 1)
+            if (prev) prev.next = next
+            if (next) next.prev = prev
         }
 
         if (removeSpace) {
-            let others = 0;
+            let others = 0
 
             for (let i = 0; i < children.length; i++) {
-                const child = children[i];
+                const child = children[i]
 
                 if (isText(child)) {
                     /**
                      * join text nodes
                      */
-                    let next = child as Node;
+                    let next = child as Node
                     while ((next = next.next) && isText(next)) {
-                        child.data = next.data + child.data;
+                        child.data = next.data + child.data
                         next.data = ""
                     }
 
@@ -162,7 +162,7 @@ const getTransformFn = (options: declared.Slim.Options) => {
                             .replace(/[ \t]{2,}/g, " ")
                     }
                 } else {
-                    others++;
+                    others++
                 }
             }
 
@@ -170,9 +170,9 @@ const getTransformFn = (options: declared.Slim.Options) => {
              * delete leading spaces
              */
             if (!others) {
-                const first = children[0];
+                const first = children[0]
                 if (first && isText(first) && first.data !== "" && !/[^ \t\r\n]/.test(first.data)) {
-                    first.data = "";
+                    first.data = ""
                 }
             }
         }
