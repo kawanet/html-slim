@@ -1,7 +1,7 @@
 {
   "name": "html-slim",
   "description": "A utility to slim down HTML by removing spaces, comments, tags and attributes.",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "author": "Kawanet",
   "bin": {
     "html-slim": "./bin/html-slim.cli.js"
@@ -12,10 +12,13 @@
     "htmlparser2": "^10.0.0"
   },
   "devDependencies": {
+    "@rollup/plugin-alias": "^6.0.0",
     "@rollup/plugin-commonjs": "^29.0.3",
+    "@rollup/plugin-multi-entry": "^7.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-sucrase": "^5.1.0",
+    "@rollup/plugin-terser": "^1.0.0",
     "@types/node": "^24.13.3",
-    "chai": "^6.2.2",
     "domhandler": "^5.0.3",
     "mocha": "^11.8.0",
     "rollup": "^4.62.4",
@@ -23,13 +26,21 @@
     "ts-refine": "^0.6.0",
     "typescript": "^6.0.3"
   },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=22",
+      "onFail": "warn"
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "exports": {
     ".": {
-      "require": "./cjs/html-slim.js",
-      "import": {
-        "types": "./types/html-slim.d.ts",
-        "default": "./src/html-slim.js"
-      }
+      "types": "./types/html-slim.d.ts",
+      "require": "./dist/html-slim.cjs",
+      "import": "./dist/html-slim.mjs"
     }
   },
   "files": [
@@ -37,21 +48,24 @@
     "README.md",
     "bin/html-slim.cli.js",
     "browser/import.cjs",
-    "cjs/html-slim.js",
+    "dist/html-slim.cjs",
     "dist/html-slim.min.js",
-    "src/html-slim.js",
-    "types/html-slim.d.ts"
+    "dist/html-slim.mjs",
+    "dist/package.json",
+    "src/html-slim.ts",
+    "types/*.d.ts"
   ],
   "license": "MIT",
-  "main": "src/html-slim.js",
+  "main": "./dist/html-slim.cjs",
   "scripts": {
-    "build": "make",
+    "build": "make -C builder",
     "fixpack": "fixpack",
-    "prepack": "make clean test",
-    "test": "make test",
+    "prepack": "make -C builder is-buildable",
+    "prepare": "make -C builder is-not-buildable 2> /dev/null || make -C builder clean all test",
+    "test": "make -C builder test",
     "ts-refine": "./node_modules/.bin/ts-refine format && ./node_modules/.bin/ts-refine imports"
   },
   "sideEffects": false,
   "type": "module",
-  "types": "types/html-slim.d.ts"
+  "types": "./types/html-slim.d.ts"
 }

@@ -1,8 +1,8 @@
 import {compile} from "css-select"
 import {render} from "dom-serializer"
 import type {Comment, Document, Element, Node, NodeWithChildren, Text} from "domhandler"
+import type * as declared from "html-slim"
 import {parseDocument} from "htmlparser2"
-import type * as declared from "../types/html-slim.js"
 
 const isElement = (node: Node): node is Element => (node.nodeType === 1)
 const isText = (node: Node): node is Text => (node.nodeType === 3)
