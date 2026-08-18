@@ -1,0 +1,86 @@
+name: Publish
+
+# Releases are cut by pushing a version tag, so ordinary pushes never reach
+# npm. The staged publish below still leaves the version invisible until a
+# maintainer approves it with 2FA.
+on:
+  push:
+    tags: [ "0.*.*" ]
+
+# Deny by default; each job opts in to the minimum it needs.
+permissions: { }
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # merge-base below needs the history of main, not just the tag.
+          fetch-depth: 0
+          persist-credentials: false
+
+      # A tag created on a side branch must never reach npm.
+      - name: Verify tag is on main
+        run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - name: Verify tag matches package.json
+        run: |
+          version=$(npm pkg get version | tr -d '"')
+          test "$version" = "$GITHUB_REF_NAME"
+
+      # --ignore-scripts blocks dependency install hooks, the entry point npm
+      # supply chain worms rely on. Nothing builds at install time here, so the
+      # build and test targets are invoked explicitly.
+      - run: npm install --ignore-scripts
+      - run: npm run build
+      - run: npm test
+
+      # Generated output is spread over four directories rather than a single
+      # dist, so the artifact names what the published package needs. The rest
+      # of the files entry is committed and comes from the checkout.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: build
+          path: |
+            bin/html-slim.cli.js
+            cjs/html-slim.js
+            dist/html-slim.min.js
+            src/html-slim.js
+          retention-days: 1
+
+  stage:
+    needs: build
+    runs-on: ubuntu-latest
+    # An npm trusted publisher cannot restrict which ref it accepts, so the
+    # environment carries that rule and contributes the claim npm matches.
+    environment: npm-stage
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: build
+          path: .
+
+      # Nothing third party is installed in this job, so no foreign code runs
+      # while the OIDC token is reachable. This only queues the tarball: a
+      # maintainer releases it with 'npm stage approve'.
+      - run: npm stage publish --ignore-scripts
