@@ -43,17 +43,15 @@ jobs:
       - run: npm run build
       - run: npm test
 
-      # Generated output is spread over four directories rather than a single
-      # dist, so the artifact names what the published package needs. The rest
-      # of the files entry is committed and comes from the checkout.
+      # Everything generated now lands in dist/, except the CLI which keeps
+      # its published path under bin/. The rest of the files entry is
+      # committed and comes from the checkout.
       - uses: actions/upload-artifact@v7
         with:
           name: build
           path: |
             bin/html-slim.cli.js
-            cjs/html-slim.js
-            dist/html-slim.min.js
-            src/html-slim.js
+            dist/
           retention-days: 1
 
   stage:

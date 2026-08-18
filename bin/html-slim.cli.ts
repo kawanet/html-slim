@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
+import type {Slim} from "html-slim"
+import {slim} from "html-slim"
 import {parseArgs, ParseArgsOptionDescriptor, ParseArgsOptionsConfig} from "node:util"
-import {slim} from "../src/html-slim.js"
-import type {Slim} from "../types/html-slim.js"
 
 async function readStdin() {
     const chunks: string[] = []
