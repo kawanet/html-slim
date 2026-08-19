@@ -143,11 +143,12 @@ const getTransformFn = (options: declared.Slim.Options) => {
 
                 if (isText(child)) {
                     /**
-                     * join text nodes
+                     * join text nodes. Siblings become adjacent only after a
+                     * node between them is removed, so join in document order.
                      */
                     let next = child as Node
                     while ((next = next.next) && isText(next)) {
-                        child.data = next.data + child.data
+                        child.data = child.data + next.data
                         next.data = ""
                     }
 
