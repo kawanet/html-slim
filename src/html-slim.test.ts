@@ -458,8 +458,10 @@ const noSpace = (html: string) => html
             assert.equal(slim({script: true})(`<div>A<script>v</script>B</div>`), `<div>AB</div>`)
         })
 
-        it('{space: false} leaves the text nodes apart', () => {
-            assert.equal(slim({space: false})(`<div>A<!--x-->B</div>`), `<div>AB</div>`)
+        it('{space: false} preserves whitespace around the removed node', () => {
+            const html = `<div>\n  A\n  <!--x-->\n  B\n</div>`
+            const expected = `<div>\n  A\n  \n  B\n</div>`
+            assert.equal(slim({space: false})(html), expected)
         })
     })
 }
