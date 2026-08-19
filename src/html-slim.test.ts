@@ -431,8 +431,9 @@ const noSpace = (html: string) => html
     })
 
     describe('text around removed nodes', () => {
-        // Sibling text nodes only become adjacent once a node between them is
-        // removed, so these cases are the only ones that reach the join.
+        // Sibling text nodes only become adjacent after a node between them is
+        // removed, and the join that merges them runs only while whitespace
+        // removal is enabled.
         it('comment between text', () => {
             assert.equal(slim()(`<div>A<!--x-->B</div>`), `<div>AB</div>`)
         })
