@@ -1,10 +1,13 @@
 {
   "name": "html-slim",
   "description": "A utility to slim down HTML by removing spaces, comments, tags and attributes.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "Kawanet",
   "bin": {
     "html-slim": "./bin/html-slim.cli.js"
+  },
+  "bugs": {
+    "url": "https://github.com/kawanet/html-slim/issues"
   },
   "dependencies": {
     "css-select": "^6.0.0",
@@ -55,8 +58,24 @@
     "src/html-slim.ts",
     "types/*.d.ts"
   ],
+  "homepage": "https://github.com/kawanet/html-slim#readme",
+  "keywords": [
+    "attribute",
+    "cli",
+    "comment",
+    "compress",
+    "html",
+    "minifier",
+    "minify",
+    "selector",
+    "whitespace"
+  ],
   "license": "MIT",
   "main": "./dist/html-slim.cjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kawanet/html-slim.git"
+  },
   "scripts": {
     "build": "make -C builder",
     "fixpack": "fixpack",
