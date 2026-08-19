@@ -429,4 +429,40 @@ const noSpace = (html: string) => html
             assert.equal(slim(null)(html), expected)
         })
     })
+
+    describe('text around removed nodes', () => {
+        // Sibling text nodes only become adjacent after a node between them is
+        // removed, and the join that merges them runs only while whitespace
+        // removal is enabled.
+        it('comment between text', () => {
+            assert.equal(slim()(`<div>A<!--x-->B</div>`), `<div>AB</div>`)
+        })
+
+        it('consecutive comments between text', () => {
+            assert.equal(slim()(`<div>A<!--x--><!--y-->B</div>`), `<div>AB</div>`)
+        })
+
+        it('several comments between text', () => {
+            assert.equal(slim()(`<div>A<!--x-->B<!--y-->C</div>`), `<div>ABC</div>`)
+        })
+
+        it('spaces around the removed node collapse to one', () => {
+            assert.equal(slim()(`<p>Hello <!-- greeting --> world</p>`), `<p>Hello world</p>`)
+            assert.equal(slim()(`<li>foo <!-- s --> bar <!-- s --> baz</li>`), `<li>foo bar baz</li>`)
+        })
+
+        it('{tag}', () => {
+            assert.equal(slim({tag: '^em$'})(`<div>A<em>x</em>B</div>`), `<div>AB</div>`)
+        })
+
+        it('{script: true}', () => {
+            assert.equal(slim({script: true})(`<div>A<script>v</script>B</div>`), `<div>AB</div>`)
+        })
+
+        it('{space: false} preserves whitespace around the removed node', () => {
+            const html = `<div>\n  A\n  <!--x-->\n  B\n</div>`
+            const expected = `<div>\n  A\n  \n  B\n</div>`
+            assert.equal(slim({space: false})(html), expected)
+        })
+    })
 }
