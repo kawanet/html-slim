@@ -13,6 +13,7 @@ const rollupConfig: RollupOptions = {
 
     // The library itself is external here, so the CLI resolves it through
     // the package `exports` at runtime — the same path a consumer takes.
+    // Bare specifiers stay external; only relative paths are bundled.
     external: /^[^.\/]/,
 
     plugins: [
