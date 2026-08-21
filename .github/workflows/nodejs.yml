@@ -20,6 +20,7 @@ jobs:
         with:
           name: build
           path: |
+            bin/html-slim.cli.js
             builder/tests/
             dist/
           retention-days: 1
@@ -43,5 +44,5 @@ jobs:
           path: .
 
       - run: npm install --ignore-scripts
-      - run: find builder/tests dist -type f -exec touch {} +
+      - run: find bin builder/tests dist -type f -exec touch {} +
       - run: npm run test-bundled
