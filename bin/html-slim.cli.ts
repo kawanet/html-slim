@@ -2,7 +2,8 @@
 
 import type {Slim} from "html-slim"
 import {slim} from "html-slim"
-import {parseArgs, ParseArgsOptionDescriptor, ParseArgsOptionsConfig} from "node:util"
+import type {ParseArgsOptionDescriptor, ParseArgsOptionsConfig} from "node:util"
+import {parseArgs} from "node:util"
 
 async function readStdin() {
     const chunks: string[] = []
