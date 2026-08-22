@@ -62,13 +62,6 @@ BUILDABLE := $(shell node -e 'console.log(process.features.typescript ? "YES" : 
 # Build all artifacts.
 all: is-buildable $(ALL)
 
-# Gate consumed by `all` and `npm prepack`: fail loudly unless type-strip
-# is available and this is not a NODE_ENV=production install.
-is-buildable:
-	@ [ "$(BUILDABLE)" = "YES" ] && [ "$(NODE_ENV)" != "production" ]
-
-# Inverse gate used by `npm prepare`: skip build/test without type-strip
-# or under NODE_ENV=production; build manually in those environments.
 is-not-buildable:
 	@ [ "$(BUILDABLE)" != "YES" ] || [ "$(NODE_ENV)" = "production" ]
 
