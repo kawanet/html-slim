@@ -18,7 +18,7 @@
 builder/tests/
 coverage/
 dist/
-node_modules/
+node_modules
 nohup.out
 npm-debug.log*
 package-lock.json
