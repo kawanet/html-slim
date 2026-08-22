@@ -1,7 +1,6 @@
 import nodeResolve from "@rollup/plugin-node-resolve"
 import sucrase from "@rollup/plugin-sucrase"
 import type {RollupOptions} from "rollup"
-import {isExternal} from "./externals.ts"
 import {showFiles} from "./show-files.ts"
 
 const rollupConfig: RollupOptions = {
@@ -14,7 +13,8 @@ const rollupConfig: RollupOptions = {
 
     // The library itself is external here, so the CLI resolves it through
     // the package `exports` at runtime — the same path a consumer takes.
-    external: isExternal,
+    // Bare specifiers stay external; only relative paths are bundled.
+    external: /^[^.\/]/,
 
     plugins: [
         nodeResolve({
