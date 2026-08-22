@@ -11,7 +11,9 @@ import {showFiles} from "./show-files.ts"
 // shims, and the package name resolves to the global left behind by
 // dist/*.min.js, so the browser exercises the shipped bundle.
 const rollupConfig: RollupOptions = {
-    input: "../src/*.test.ts",
+    // 90.entrypoint tests require() the shipped files; Node-only, no browser
+    // shim, so the negative pattern keeps them out of the browser bundle.
+    input: ["../src/*.test.ts", "!../src/90.*"],
 
     output: {
         file: "../browser/tests/bundled.js",
