@@ -44,5 +44,4 @@ jobs:
           path: .
 
       - run: npm install --ignore-scripts
-      - run: find bin builder/tests dist -type f -exec touch {} +
       - run: npm run test-bundled
