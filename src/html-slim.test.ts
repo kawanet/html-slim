@@ -1,6 +1,6 @@
-import {slim} from "html-slim"
 import {strict as assert} from "node:assert"
 import {describe, it} from "node:test"
+import {slim} from "./html-slim.ts"
 
 // Mirror html-slim's whitespace handling: only ASCII [ \t\r\n] count as space.
 // Using \s would also match U+3000 and break comparisons when full-width

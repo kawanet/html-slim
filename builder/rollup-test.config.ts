@@ -31,6 +31,8 @@ const rollupConfig: RollupOptions = {
                 {find: "node:test", replacement: fileURLToPath(new URL("./node-test.shim.ts", import.meta.url))},
                 {find: "node:assert", replacement: fileURLToPath(new URL("./node-assert.shim.ts", import.meta.url))},
                 {find: "html-slim", replacement: fileURLToPath(new URL("../browser/import.cjs", import.meta.url))},
+                // The suites spell the entry as a relative path; same shim either way.
+                {find: /^\.\/html-slim\.ts$/, replacement: fileURLToPath(new URL("../browser/import.cjs", import.meta.url))},
             ],
         }),
 
