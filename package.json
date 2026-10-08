@@ -52,6 +52,7 @@
     "README.md",
     "bin/html-slim.cli.js",
     "browser/import.cjs",
+    "browser/import.mjs",
     "dist/html-slim.min.js",
     "dist/html-slim.mjs",
     "dist/package.json",
