@@ -24,24 +24,9 @@ CLI_CONFIG := ./rollup-cli.config.ts
 BROWSER_TEST_CONFIG := ./rollup-browser-test.config.ts
 BUILDER_TEST_CONFIG := ./rollup-builder-test.config.ts
 
-# Every target gets its own cap because each bundle has a different
-# legitimate shape. The .mjs externalizes `dependencies`, so it only ever
-# holds this package's own code — six figures here would mean htmlparser2
-# and friends leaked in.
 MJS_MAX_BYTES := 10000
-
-# The browser bundle inlines `dependencies` on purpose: nothing resolves
-# node_modules at the other end. The cap therefore guards against
-# unexpected growth rather than against a dep leak.
 MINJS_MAX_BYTES := 110000
-
-# The CLI externalizes both `dependencies` and the package itself, so it
-# carries little more than argv handling.
 CLI_MAX_BYTES := 5000
-
-# The browser test bundle inlines the test sources plus the node:test and
-# node:assert shims. The package is externalized through
-# browser/import.cjs so it does not count toward this.
 TEST_MAX_BYTES := 30000
 
 ALL := $(MJS_DST) $(MINJS_DST) $(CLI_DST)
@@ -95,7 +80,6 @@ $(PKG_DST):
 	@ls -l $@
 	@echo ""
 
-# Browser test bundle loaded by browser/tests.html
 $(BROWSER_TEST_DST): $(BROWSER_TEST_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(BROWSER_SRC) $(MINJS_DST)
 	@mkdir -p $(dir $@)
 	../node_modules/.bin/rollup -c $<
@@ -103,8 +87,6 @@ $(BROWSER_TEST_DST): $(BROWSER_TEST_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(
 	@test "$$(wc -c < $@)" -le $(TEST_MAX_BYTES) || { echo "ERROR: $@ exceeds $(TEST_MAX_BYTES) byte cap" >&2; exit 1; }
 	@echo ""
 
-# Plain-JS bundle of the test suites, importing the package by name.
-# Runs against dist/ on any supported Node runtime without type-strip.
 $(BUILDER_TEST_DST): $(BUILDER_TEST_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(MJS_DST)
 	@mkdir -p $(dir $@)
 	../node_modules/.bin/rollup -c $<
