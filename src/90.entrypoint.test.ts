@@ -30,7 +30,7 @@ test("import entry (.mjs)", () => {
 // minified bundle below Node 20.19.
 test("require entry", {skip: !isNodeJS}, async () => {
     const require = await createRequire(import.meta.url)
-    const m = require("html-slim")
+    const m: typeof declared = require("html-slim")
     // entries
     assert.equal(typeof m.slim, "function")
 })
@@ -38,7 +38,7 @@ test("require entry", {skip: !isNodeJS}, async () => {
 // The exports map publishes no subpath, so reach the bundle by its path.
 test("minified entry (.min.js)", {skip: !isNodeJS}, async () => {
     const require = await createRequire(import.meta.url)
-    const m = require(await resolvePath("html-slim", "html-slim.min.js"))
+    const m: typeof declared = require(await resolvePath("html-slim", "html-slim.min.js"))
     // entries
     assert.equal(typeof m.slim, "function")
 })
